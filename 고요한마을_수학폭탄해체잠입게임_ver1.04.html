@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10191e">
+<title>고요한 마을 · 수학 폭탄 해체 잠입 게임 · ver1.04</title>
+<style>
+:root{color-scheme:dark;--bg:#10191e;--panel:#162228;--line:#2c3b42;--ink:#edf3ed;--muted:#98adb4;--mint:#c5efb0;--cyan:#76c7ed;--red:#ef8b83;--yellow:#eaca83;--mono:ui-monospace,SFMono-Regular,Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif}button,input,select{font:inherit}button,select{cursor:pointer}button{border:1px solid var(--line);background:#1b2a31;color:var(--ink);border-radius:7px;padding:10px 13px;transition:background .16s,border-color .16s}button:hover{background:#2b3e47;border-color:#6d878f}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}button:disabled{cursor:default;opacity:.42}button.primary{background:var(--mint);border-color:var(--mint);color:#16251c;font-weight:800}button.primary:hover{background:#ddffd0}button.ghost{background:transparent}.small{font-size:12px}.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}[hidden]{display:none!important}
+.app{max-width:1640px;margin:auto;padding:24px 30px 16px}.mast{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:22px}.brand{display:flex;gap:15px;align-items:center}.mark{width:43px;height:43px;border:1px solid #657966;position:relative;display:grid;place-items:center;transform:rotate(-2deg);background:#c5efb00b}.mark::before{content:"";width:19px;height:24px;border:2px solid var(--mint);border-top-width:7px;transform:rotate(2deg)}.mark::after{content:"+";position:absolute;color:var(--mint);font-family:var(--mono);font-size:19px;top:8px}.eyebrow{font:10px var(--mono);letter-spacing:2.4px;color:var(--mint);margin-bottom:6px}.brand-title{display:flex;gap:12px;align-items:baseline}.brand h1{font-size:26px;letter-spacing:-1px;margin:0}.brand-title span{font:11px var(--mono);letter-spacing:2px;color:#a3b4b5}.top-actions{display:flex;gap:7px;align-items:center}.top-actions button{font-size:12px;padding:10px 12px}.status{font:11px var(--mono);letter-spacing:1px;color:var(--mint);margin-right:10px}.status::before{content:"";display:inline-block;background:currentColor;width:6px;height:6px;border-radius:50%;margin-right:8px;box-shadow:0 0 12px #c5efb05c}
+.brief-line{display:flex;justify-content:space-between;align-items:end;margin-bottom:14px;gap:18px}.brief-line h2{margin:0;font-size:19px;letter-spacing:-.6px}.brief-line p{margin:5px 0 0;font-size:13px;color:var(--muted)}.operation-id{text-align:right;font:11px var(--mono);line-height:1.8;color:var(--muted);letter-spacing:.7px}.operation-id b{color:#d4e0dc;font-weight:400}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) 248px;gap:16px;align-items:start}.field{background:#172329;border:1px solid #34464d;border-radius:10px;overflow:hidden;box-shadow:0 18px 70px #0003}.field-header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#1b282e;border-bottom:1px solid var(--line);font-size:12px}.field-header strong{font:11px var(--mono);letter-spacing:1.1px;font-weight:500}.field-header span{color:var(--muted);font-size:11px}.viewport{position:relative;aspect-ratio:1280/800;overflow:hidden;background:#1f3035}canvas{display:block;width:100%;height:100%;outline:none;touch-action:none}.field-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;min-height:43px;background:#18252b}.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:10px;color:#b4c4c6}.legend span{display:flex;align-items:center;gap:6px}.dot{width:7px;height:7px;background:var(--cyan);border-radius:50%}.dot.enemy{background:#db877b}.dot.vision{border-radius:1px;background:#debf60}.dot.cover{border-radius:1px;background:#829299}.coordinates{font:10px var(--mono);color:#93a7ad}.context{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);padding:10px 17px;border:1px solid #99b59677;background:#13251eef;box-shadow:0 7px 25px #0005;border-radius:7px;font-size:12px;text-align:center;max-width:90%;width:max-content;pointer-events:none;line-height:1.6;color:#dfecd9}.context kbd{margin-right:6px}.toast{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:5;background:#17242ef2;border:1px solid #8a9eaa;padding:10px 16px;border-radius:7px;font-size:12px;text-align:center;max-width:90%;width:max-content;pointer-events:none}.tactical-note{position:absolute;top:14px;left:14px;right:14px;display:flex;align-items:center;justify-content:space-between;padding:12px 15px;background:#15211fea;border:1px solid #c5efb077;border-radius:7px;gap:12px}.tactical-note strong{font-size:14px}.tactical-note small{display:block;color:#a8bdb0;font-size:11px;margin-top:5px}.tactical-note button{white-space:nowrap;font-size:12px}.touch-bar{display:none;padding:10px;gap:8px;justify-content:center;border-top:1px solid var(--line);background:#16242a}.touch-bar button{font-size:11px}.touch-help{display:none;font-size:11px;color:var(--muted);margin:9px 2px}.side{display:flex;flex-direction:column;gap:13px}.card{border:1px solid var(--line);border-radius:9px;padding:17px;background:var(--panel)}.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.card-head h3{font-size:12px;font-weight:700;margin:0}.card-head span{font:10px var(--mono);color:var(--muted)}.objective-total{display:flex;align-items:baseline;gap:7px;margin:0 0 10px}.objective-total strong{font:38px var(--mono);letter-spacing:-2px;color:var(--mint)}.objective-total span{font-size:12px;color:var(--muted)}.progress-track{height:4px;background:#2c3b40;overflow:hidden;border-radius:4px;margin-bottom:12px}.progress-fill{width:0%;height:100%;background:var(--mint);transition:width .25s}.bomb-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid #2a393e}.bomb-number{width:29px;height:29px;display:grid;place-items:center;border:1px solid #59625b;background:#262c28;color:var(--yellow);border-radius:5px;font:12px var(--mono);flex:none}.bomb-item.done .bomb-number{background:#c5efb01a;border-color:#86b679;color:var(--mint)}.bomb-info{flex:1}.bomb-info strong{font-size:12px;font-weight:500;display:block}.bomb-info span{font-size:10px;color:var(--muted);display:block;margin-top:4px}.bomb-progress{font:11px var(--mono);color:#b4c4bf}.bomb-item.done .bomb-progress{color:var(--mint)}.agent-line{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.agent-line strong{font-size:20px}.agent-line span{font-size:11px;color:var(--muted)}.stance-buttons{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}.stance-buttons button{font-size:11px;padding:8px 2px;background:transparent}.stance-buttons .active{color:var(--cyan);background:#76c7ed15;border-color:#5286a0}.noise-row{display:flex;align-items:center;justify-content:space-between;margin-top:13px;font-size:10px;color:var(--muted)}.noise-meter{display:flex;gap:3px}.noise-meter i{display:block;width:13px;height:5px;background:#31434b;border-radius:1px}.noise-meter i.on{background:var(--yellow)}.carry-state{border-top:1px solid var(--line);margin-top:12px;padding-top:11px;color:#98adb4;font-size:10px;line-height:1.5}.carry-state.active{color:#efb0a6}.clock{font:28px var(--mono);letter-spacing:1px}.clock-caption{font-size:10px;color:var(--muted);line-height:1.5;margin-top:6px}.stats-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding-top:12px;margin-top:12px;border-top:1px solid var(--line)}.stats-row b{color:var(--ink);font:14px var(--mono);margin-left:5px}.quick-keys{display:flex;gap:8px;align-items:center;justify-content:space-between;color:var(--muted);font-size:11px;margin:10px 0}.quick-keys:last-child{margin-bottom:0}kbd{display:inline-flex;align-items:center;justify-content:center;min-width:22px;padding:3px 5px;font:10px var(--mono);border:1px solid #516168;border-bottom-width:2px;background:#223239;color:#e1ebe5;border-radius:4px;white-space:nowrap}.footer{display:flex;align-items:center;justify-content:space-between;color:#708991;font:10px var(--mono);padding:16px 1px 0;gap:12px}.footer span:first-child{font-family:inherit;color:#91a7ab;font-size:11px}
+.overlay{position:absolute;inset:0;z-index:10;background:#0a171f90;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto;backdrop-filter:blur(3px)}.dialog{position:relative;width:min(540px,100%);margin:auto;border:1px solid #57675f;background:#152329f7;box-shadow:0 30px 90px #0008;border-radius:12px;padding:30px}.dialog .eyebrow{font-size:10px;color:var(--mint)}.dialog h2{font-size:30px;line-height:1.35;letter-spacing:-1px;margin:14px 0 12px}.dialog p{font-size:13px;line-height:1.75;color:#adc0c3;margin:10px 0 17px}.intro-route{display:flex;gap:10px;margin:24px 0}.intro-step{flex:1;border-top:1px solid #57705d;padding-top:10px;font-size:11px;line-height:1.6;color:#c4d3cb}.intro-step b{display:block;color:var(--mint);font:12px var(--mono);margin-bottom:6px}.settings{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}.settings label{font-size:11px;color:#b2c2c3;display:block}.settings select{display:block;width:100%;padding:10px;margin-top:7px;border:1px solid #42545b;border-radius:6px;background:#1d3039;color:#f0f4ee;font-size:12px}.start-button{width:100%;padding:14px;font-size:14px}.intro-note{font-size:10px;color:#96aaa9;line-height:1.8;text-align:center;margin-top:14px}.modal-top{display:flex;justify-content:space-between;align-items:center}.paused-label{font:10px var(--mono);letter-spacing:.6px;color:#c5efb0;background:#c5efb011;padding:6px 9px;border:1px solid #c5efb044;border-radius:4px}.quiz-card{width:min(520px,100%);padding:28px 34px;border-color:#647e6c}.quiz-card h2{font-size:22px;margin-bottom:7px}.quiz-sub{font-size:12px;color:var(--muted);line-height:1.6}.circuit-list{display:flex;gap:8px;margin:23px 0 10px}.circuit{flex:1;height:5px;border-radius:2px;background:#354a4e}.circuit.complete{background:var(--mint)}.circuit.current{background:#779888}.question-count{display:flex;justify-content:space-between;font-size:11px;color:#adc1bb}.equation{text-align:center;font:clamp(27px,4.2vw,42px) var(--mono);font-weight:600;letter-spacing:-1px;padding:23px 0 20px;color:#eef4e8}.answer-label{display:block;font-size:11px;color:#b3c6bd;margin-bottom:7px}.answer-row{display:flex;gap:8px}#answerInput{min-width:0;flex:1;font:24px var(--mono);height:52px;border-radius:6px;border:1px solid #6f9287;background:#0c1b22;color:#f1f8ee;text-align:center;outline-offset:1px}#answerInput::placeholder{font:13px sans-serif;color:#6e878c}.answer-row button{font-size:12px;padding:12px 15px;white-space:nowrap}.quiz-feedback{min-height:46px;display:flex;align-items:center;font-size:12px;line-height:1.6;color:#91a9a9;padding:10px 0}.quiz-feedback.correct{color:var(--mint)}.quiz-feedback.wrong{color:#ffaaa0}.quiz-bottom{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:14px;gap:10px}.quiz-bottom span{font-size:10px;color:#8fa7aa;line-height:1.5}.quiz-bottom button{font-size:11px;padding:8px 10px}.shake{animation:shake .32s ease}.success-glow{animation:success .35s ease}@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}@keyframes success{50%{box-shadow:0 0 0 4px #c5efb055}}
+.help-list{margin:20px 0;display:grid;grid-template-columns:115px 1fr;gap:13px 12px;align-items:start;font-size:12px;color:#b8cbcb;line-height:1.7}.help-list dt,.help-list dd{margin:0}.help-list dt{color:#e8f1e9}.help-tip{padding:12px;background:#c5efb00b;border-left:2px solid var(--mint);font-size:12px;line-height:1.8;color:#c5d6c7;margin:17px 0}.button-row{display:flex;gap:9px;margin-top:20px}.button-row button{flex:1}.result-title{font:26px var(--mono)!important;letter-spacing:-1px!important}.result-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:20px 0}.result-metric{padding:14px 7px;border:1px solid #3c5355;background:#112027;border-radius:6px;text-align:center}.result-metric strong{display:block;font:22px var(--mono);color:var(--mint)}.result-metric span{font-size:10px;color:#a2b7b6;display:block;margin-top:6px}.review-wrap{border-top:1px solid var(--line);padding-top:10px;font-size:12px;color:#b9ccca}.review-wrap summary{cursor:pointer;font-size:12px;padding:6px 0}.review-list{max-height:110px;overflow:auto;font-size:12px;line-height:1.9;margin:6px 0 0;padding-left:20px}.review-list em{font-style:normal;color:#ffaea2}.review-list b{color:var(--mint)}.danger .eyebrow{color:var(--red)}.danger{border-color:#9e5a50}.danger .result-title{color:#f3a299}.pause-dialog{max-width:410px}.pause-dialog h2{font-size:25px}.mobile-stick{position:absolute;z-index:6;pointer-events:none;width:90px;height:90px;border-radius:50%;border:2px solid #d5edfb65;background:#132d3990;transform:translate(-50%,-50%)}.mobile-stick i{position:absolute;width:35px;height:35px;border-radius:50%;background:#a5d6eb88;left:50%;top:50%;margin:-17.5px}
+@media(min-width:801px){.viewport{max-height:calc(100dvh - 230px);min-height:330px}}
+@media(min-width:1500px){.app{padding-top:28px}.card{padding:20px}.workspace{grid-template-columns:minmax(0,1fr) 266px}.bomb-item{padding:14px 0}}
+@media(max-width:1100px){.app{padding:18px}.workspace{grid-template-columns:minmax(0,1fr) 220px;gap:12px}.card{padding:13px}.dialog{padding:24px}.dialog h2{font-size:25px}.intro-route{margin:15px 0}.settings{margin:15px 0}.quick-card{display:none}.side{gap:10px}.brand-title span{display:none}.field-footer{padding:10px}.legend{gap:9px}.quiz-card{padding:23px}.equation{padding:15px 0}.circuit-list{margin-top:18px}.intro-note{margin-top:10px}}
+@media(max-width:800px){.app{padding:14px 12px}.mast{margin-bottom:18px;align-items:flex-start}.brand{gap:10px}.mark{width:36px;height:36px}.brand h1{font-size:22px}.eyebrow{font-size:8px;letter-spacing:1.5px}.top-actions{gap:4px}.top-actions button{font-size:11px;padding:9px 8px}.status{display:none}.brief-line h2{font-size:17px}.brief-line p{font-size:11px}.operation-id{font-size:9px}.workspace{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:8px}.card{padding:12px}.card-head{margin-bottom:10px}.objective-total strong{font-size:26px}.bomb-item{padding:7px 0;gap:7px}.bomb-number{width:23px;height:23px;font-size:10px}.bomb-info strong{font-size:11px}.bomb-info span{display:none}.bomb-progress{font-size:10px}.objective-total{margin-bottom:8px}.progress-track{margin-bottom:8px}.agent-line strong{font-size:17px}.agent-line span{display:none}.agent-line{margin-bottom:10px}.stance-buttons{gap:3px}.stance-buttons button{font-size:10px}.noise-row{margin-top:10px}.noise-meter i{width:8px}.carry-state{font-size:10px}.clock{font-size:22px}.stats-row{display:block;line-height:2}.stats-row span{display:block}.footer{font-size:9px;flex-wrap:wrap}.footer span:first-child{font-size:10px}.dialog{padding:22px}.dialog h2{font-size:24px}.overlay{padding:14px}.field-header{padding:10px 12px}.field-header span{font-size:10px}.touch-bar{display:flex}.touch-help{display:block}}
+@media(max-width:520px){.viewport{aspect-ratio:4/5}.viewport canvas{position:absolute;inset:0}.overlay{padding:12px}.dialog h2{font-size:23px}.dialog p{font-size:12px}.intro-step{font-size:10px}.intro-route{gap:8px}.settings{gap:8px}.settings select{padding:9px 6px;font-size:11px}.intro-note{font-size:10px}.dialog{padding:22px 19px}.operation-id{display:none}.brief-line p{line-height:1.6}.brand h1{font-size:21px}.top-actions button{font-size:10px;padding:8px 6px}.top-actions .wide-only{display:none}.side{grid-template-columns:1fr 1fr}.time-card{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:12px}.time-card .card-head{margin:0}.time-card .clock-caption{display:none}.time-card .stats-row{display:flex;border:0;margin:0;padding:0;gap:12px;font-size:10px}.time-card .clock{font-size:20px}.coordinates{display:none}.field-header strong{font-size:10px}.field-header span{font-size:9px}.legend{font-size:9px}.context{font-size:10px;bottom:10px}.tactical-note{padding:10px}.tactical-note strong{font-size:12px}.tactical-note small{font-size:10px}.equation{font-size:36px}.quiz-card h2{font-size:21px}.result-metric strong{font-size:19px}.help-list{grid-template-columns:94px 1fr;font-size:11px;gap:10px}.modal-top .eyebrow{font-size:9px}.paused-label{font-size:9px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ver1.04: 확장 지도와 3단계 캠페인 */
+.overlay{position:fixed;inset:0;z-index:100;padding:24px;background:#09141be0}.dialog{max-height:calc(100dvh - 48px);overflow:auto;width:min(570px,100%)}.quiz-card{width:min(540px,100%)}.equation{font-size:clamp(23px,3vw,32px);line-height:1.45;letter-spacing:-.5px;padding:20px 0;overflow-wrap:normal}.stage-card strong{font-size:20px;display:block;margin-bottom:8px}.stage-card p{font-size:11px;line-height:1.7;margin:9px 0 0;color:var(--muted)}#stageLevel{font:10px var(--mono);color:var(--mint)}.stage-dots{display:flex;gap:4px}.stage-dots i{font:10px var(--mono);font-style:normal;width:20px;height:20px;display:grid;place-items:center;border:1px solid #516369;border-radius:50%;color:#80959c}.stage-dots i.active{background:var(--mint);border-color:var(--mint);color:#1a292a}.stage-dots i.done{color:var(--mint);background:#c3efb11a}.time-table-wrap{overflow:auto;margin:16px 0}.time-table{width:100%;border-collapse:collapse;font-size:11px;white-space:nowrap}.time-table th,.time-table td{text-align:right;padding:9px 7px;border-bottom:1px solid #31434b}.time-table th:first-child,.time-table td:first-child{text-align:left}.time-table th{color:var(--muted);font-weight:500}.time-table td{font-variant-numeric:tabular-nums}#negativeBtn{padding:10px;font-size:18px}.intro-step:nth-child(2){border-color:#8bbcd4}.intro-step:nth-child(2) b{color:#9fdbef}.intro-step:nth-child(3){border-color:#b2a0c9}.intro-step:nth-child(3) b{color:#d8c4ff}.quick-card{display:none}.clock-caption{line-height:1.6}.touch-bar{flex-wrap:wrap}.footer span:last-child{font-size:10px}.field-header strong{white-space:nowrap}.field-header{gap:12px}.field-header #fieldState{text-align:right}
+@media(max-width:800px){.stage-card{grid-column:1/-1}.stage-card strong{font-size:18px;display:inline-block;margin-right:10px}#stageLevel{display:inline-block}.stage-card p{margin-top:3px}.stage-card .card-head{margin-bottom:7px}}
+@media(max-width:520px){.overlay{padding:14px}.dialog{max-height:calc(100dvh - 28px)}.time-table th,.time-table td{padding:8px 5px;font-size:10px}.top-actions .wide-only{display:none}.brand .eyebrow{letter-spacing:.7px;font-size:7px}.top-actions{flex-wrap:wrap;justify-content:flex-end;max-width:172px}.field-header #fieldLocation{display:none}.touch-bar button{padding:10px 8px}.equation{font-size:24px}.time-card .clock-caption{display:none}.time-card .card-head span{display:none}}
+
+.dialog .difficulty-summary{font-size:12px;line-height:1.7;margin:-7px 0 18px;padding:11px 13px;border:1px solid #61715f66;background:#c5efb00c;border-radius:6px;color:#c9dcca}.dialog .difficulty-summary.challenge{border-color:#d28c6755;background:#eea2740d;color:#f0c9a4}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="mast">
+    <div class="brand"><div class="mark" aria-hidden="true"></div><div><div class="eyebrow">MATH × STEALTH / THREE SECTORS</div><div class="brand-title"><h1>고요한 마을</h1><span>SILENT VILLAGE</span></div></div></div>
+    <div class="top-actions"><span class="status" id="missionStatus">STANDBY</span><button id="soundBtn" type="button" aria-pressed="false">소리 끔</button><button id="pauseBtn" type="button" title="일시정지 (P)">Ⅱ</button><button id="mapBtn" type="button" title="작전 지도 (M)">작전 지도</button><button id="helpBtn" type="button" title="조작 안내 (H)">도움말</button><button id="fullscreenBtn" class="wide-only" type="button">전체 화면</button></div>
+  </header>
+  <div class="brief-line"><div><h2>마을의 시간을 되찾는 작전</h2><p>세 개의 구역, 열두 개의 폭탄. 건물에 잠입하고 계산으로 회로를 해체하세요.</p></div><div class="operation-id"><b>3 STAGES · 쉬움 → 보통 → 어려움</b><br>12 TARGETS / 60 EQUATIONS</div></div>
+  <main class="workspace">
+    <section class="field" aria-label="게임 화면">
+      <div class="field-header"><strong>TACTICAL FIELD <span id="fieldLocation" style="margin-left:8px">녹음 마을</span></strong><span id="fieldState">작전 대기 · 정찰 준비</span></div>
+      <div class="viewport" id="viewport">
+        <canvas id="gameCanvas" tabindex="0" aria-label="잠입 게임 지도. WASD 또는 방향키 이동, Shift 자세 변경, Space 제압 또는 시체 운반, E 폭탄 해체, F 문 열기와 닫기.">Canvas를 지원하는 브라우저에서 실행해 주세요.</canvas>
+        <div id="contextHint" class="context" hidden></div>
+        <div id="toast" class="toast" role="status" hidden></div>
+        <div id="tacticalNote" class="tactical-note" hidden><div><strong>작전 지도 · 모든 움직임 정지</strong><small>붉은 화살표: 적의 현재 방향 / 금색 점: 문 / 파란 점: 현재 위치. 적은 무작위로 순찰하며, 지도에서는 시간이 멈춥니다.</small></div><button id="closeMapBtn" class="primary" type="button">복귀 M</button></div>
+        <div id="mobileStick" class="mobile-stick" hidden><i></i></div>
+        <div id="introOverlay" class="overlay">
+          <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="introTitle">
+            <div class="modal-top"><span class="eyebrow">OPERATION : SILENT VILLAGE</span><span class="paused-label">BRIEFING</span></div>
+            <h2 id="introTitle">보이지 않게 접근하고,<br>계산으로 해체하세요.</h2>
+            <p>문을 열어 건물 안으로, 다리를 건너 다음 구역으로.<br>넓어진 세 개의 맵에서 폭탄 12개를 모두 해체하세요.</p>
+            <div class="intro-route"><div class="intro-step"><b>01 / 녹음 마을</b>쉬움 · 한 자리 연산<br>주택과 작은 골목</div><div class="intro-step"><b>02 / 수로 지구</b>보통 · 사칙연산<br>다리와 물류 시설</div><div class="intro-step"><b>03 / 보랏빛 요새</b>어려움 · 혼합 계산<br>내부 구획과 지휘실</div></div>
+            <div class="settings"><label>잠입 난이도<select id="difficulty"><option value="training">연습 · 느린 순찰</option><option value="standard">표준 · 균형 작전</option><option value="challenge">도전 · 증원 병력</option></select></label><label>연산 유형<select id="mathMode"><option value="mixed">단계별 혼합 연산</option><option value="add">단계별 덧셈 집중</option><option value="sub">단계별 뺄셈 집중</option><option value="mul">단계별 곱셈 집중</option></select></label></div>
+            <p id="difficultySummary" class="difficulty-summary" aria-live="polite"></p>
+            <button class="primary start-button" id="startBtn" type="button">작전 시작 <span class="mono" style="margin-left:12px">→</span></button>
+            <div class="intro-note">WASD 이동 · Shift 자세 · Space 제압 / 운반 · F 문 · E 해체<br>폭탄마다 5문제. 풀이 중 적은 정지하며, 학습 시간만 기록됩니다.</div>
+          </section>
+        </div>
+        <div id="quizOverlay" class="overlay" hidden>
+          <section class="dialog quiz-card" id="quizCard" role="dialog" aria-modal="true" aria-labelledby="quizTitle">
+            <div class="modal-top"><span class="eyebrow" id="quizCode">BOMB 01 / DISARM</span><span class="paused-label">Ⅱ 적 · 잠입 시간 정지</span></div>
+            <h2 id="quizTitle">보급 창고 · 회로 해체</h2><div class="quiz-sub" id="quizDifficulty"></div><div class="quiz-sub">5문제 정답으로 해체 · 적은 정지 · 학습 시간만 기록</div>
+            <div class="circuit-list" id="circuits" aria-hidden="true"></div><div class="question-count"><span id="questionCount">회로 1 / 5</span><span id="correctCount">정답 0개</span></div>
+            <div class="equation" id="equation" aria-live="polite"></div>
+            <form id="answerForm" autocomplete="off"><label for="answerInput" class="answer-label">계산한 답을 입력하세요</label><div class="answer-row"><input id="answerInput" type="text" inputmode="numeric" maxlength="5" placeholder="정답 입력" spellcheck="false" autocomplete="off"><button id="negativeBtn" type="button" aria-label="답의 부호 바꾸기">±</button><button class="primary" type="submit">확인 ↵</button></div></form>
+            <div id="quizFeedback" class="quiz-feedback" role="status">시간 제한이 없습니다. 정답을 입력하고 Enter를 누르세요.</div>
+            <div class="quiz-bottom"><span>오답은 같은 문제로 재도전<br>맞힌 문제 수는 유지됩니다.</span><button id="leaveQuizBtn" class="ghost" type="button">현장으로 돌아가기</button></div>
+          </section>
+        </div>
+        <div id="pauseOverlay" class="overlay" hidden><section class="dialog pause-dialog" role="dialog" aria-modal="true" aria-labelledby="pauseTitle"><div class="eyebrow">OPERATION PAUSED</div><h2 id="pauseTitle">잠시 숨을 고르세요.</h2><p>적의 이동, 발소리, 시야 판정, 작전 시간이 모두 멈췄습니다.</p><button id="resumeBtn" class="primary start-button" type="button">작전 계속하기</button><div class="button-row"><button id="pauseMapBtn" type="button">작전 지도</button><button id="restartBtn" type="button">현재 단계 재시작</button></div><div class="intro-note">P 또는 Esc 키로도 계속할 수 있습니다.</div></section></div>
+        <div id="helpOverlay" class="overlay" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="eyebrow">FIELD MANUAL</div><h2 id="helpTitle">작전 안내</h2><dl class="help-list"><dt><kbd>W A S D</kbd> / <kbd>↑↓←→</kbd></dt><dd>이동 방향으로 자동 회전합니다. 마우스를 움직이면 그쪽을 봅니다. 우클릭을 누르면 마우스 조준을 유지합니다.</dd><dt><kbd>Shift</kbd></dt><dd>서기 → 앉기 → 포복. 포복은 느리지만 발소리가 없습니다.</dd><dt><kbd>Space</kbd></dt><dd>적 등 뒤에서 은밀 제압 → 시체 근처에서 운반 → 다시 누르면 내려놓기.</dd><dt><kbd>F</kbd></dt><dd>근처 문을 여닫습니다. 열린 문으로 건물에 들어갈 수 있고, 닫힌 문은 적의 시야를 막습니다.</dd><dt><kbd>E</kbd></dt><dd>근처 폭탄 해체. 5문제 정답이 필요합니다. 풀이 중 적·발소리·발각 판정은 정지하고 학습 시간만 기록됩니다.</dd><dt><kbd>M</kbd> / <kbd>P</kbd></dt><dd>작전 지도 / 일시정지. 다른 탭으로 이동해도 자동으로 멈춥니다.</dd></dl><div class="help-tip">모든 난이도에서 적의 목적지·이동 경로·주변을 살피는 방향이 무작위로 바뀝니다. 열린 문으로 적도 드나들 수 있습니다. 단계별 병력은 연습 4·6·8명, 표준 8·12·16명, 도전 12·18·24명입니다. 표준의 시야와 순찰 속도는 연습과 도전의 중간 수준입니다.<br><br>노란 부채꼴 안에 몸이나 시체가 보이면 즉시 실패합니다. 벽 뒤는 시야가 가려집니다. 발소리를 들은 적은 느낌표를 띄우며 소리 쪽을 돌아봅니다. 시체 운반 중에는 포복할 수 없습니다.</div><button id="closeHelpBtn" class="primary start-button" type="button">확인</button></section></div>
+        <div id="stageOverlay" class="overlay" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="stageClearTitle"><div class="eyebrow">SECTOR SECURED</div><h2 id="stageClearTitle" class="result-title">STAGE 01 CLEAR</h2><p id="stageClearMessage"></p><div class="result-metrics"><div class="result-metric"><strong id="stageClearTime">00:00</strong><span>스테이지 총 시간</span></div><div class="result-metric"><strong id="stageClearMove">00:00</strong><span>잠입 시간</span></div><div class="result-metric"><strong id="stageClearLearn">00:00</strong><span>학습 시간</span></div></div><div id="nextStageInfo" class="help-tip" style="white-space:pre-line"></div><button id="nextStageBtn" class="primary start-button" type="button">다음 스테이지</button><div class="intro-note">이 안내 화면에서는 시간이 멈춥니다.</div></section></div>
+        <div id="resultOverlay" class="overlay" hidden><section id="resultDialog" class="dialog" role="dialog" aria-modal="true" aria-labelledby="resultTitle"><div class="eyebrow" id="resultCode">OPERATION COMPLETE</div><h2 class="result-title" id="resultTitle">MISSION CLEAR</h2><p id="resultMessage"></p><div class="result-metrics"><div class="result-metric"><strong id="resultTime">00:00</strong><span>총 소요 시간</span></div><div class="result-metric"><strong id="resultAccuracy">100%</strong><span>응답 정답률</span></div><div class="result-metric"><strong id="resultCorrect">20</strong><span>누적 정답</span></div></div><div id="resultNote" class="help-tip"></div><div class="time-table-wrap"><table class="time-table"><thead><tr><th>스테이지</th><th>합계</th><th>잠입</th><th>학습</th><th>상태</th></tr></thead><tbody id="stageTimeRows"></tbody></table></div><details id="reviewWrap" class="review-wrap" hidden><summary>틀렸던 문제 다시 보기</summary><ol id="reviewList" class="review-list"></ol></details><div class="button-row"><button id="retryBtn" class="primary" type="button">다시 도전</button><button id="settingsBtn" type="button">설정으로 돌아가기</button></div></section></div>
+      </div>
+      <div class="touch-bar"><button id="touchStance" type="button">자세 전환</button><button id="touchAction" type="button">제압 / 운반</button><button id="touchDoor" type="button">문 F</button><button id="touchBomb" class="primary" type="button">폭탄 해체</button><button id="touchPause" type="button">Ⅱ 정지</button></div>
+      <div class="field-footer"><div class="legend"><span><i class="dot"></i>플레이어</span><span><i class="dot enemy"></i>순찰병</span><span><i class="dot vision"></i>적 시야</span><span><i class="dot cover"></i>은폐물</span></div><span id="coordinates" class="coordinates">X 0100 / Y 0735</span></div>
+    </section>
+    <aside class="side"><section class="card stage-card"><div class="card-head"><h3 id="stageLabel">STAGE 01 / 03</h3><div class="stage-dots"><i data-stage-dot="0">1</i><i data-stage-dot="1">2</i><i data-stage-dot="2">3</i></div></div><strong id="stageName">녹음 마을</strong><div id="stageLevel"></div><p id="stageLesson"></p></section>
+      <section class="card objective-card"><div class="card-head"><h3>해체 목표</h3><span>OBJECTIVES</span></div><div class="objective-total"><strong id="bombTotal">00</strong><span>/ 04 해체 완료</span></div><div class="progress-track"><div class="progress-fill" id="missionProgress"></div></div><div id="bombList"></div></section>
+      <section class="card"><div class="card-head"><h3>요원 상태</h3><span>AGENT</span></div><div class="agent-line"><strong id="stanceName">서기</strong><span id="speedLabel">이동 빠름</span></div><div class="stance-buttons"><button data-stance="0" class="active" type="button">서기</button><button data-stance="1" type="button">앉기</button><button data-stance="2" type="button">포복</button></div><div class="noise-row"><span id="noiseLabel">발소리 큼</span><div class="noise-meter" id="noiseMeter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div><div id="carryState" class="carry-state">운반 중인 시체 없음</div></section>
+      <section class="card time-card"><div class="card-head"><h3>총 소요 시간</h3><span>TIME</span></div><div class="clock" id="missionClock">00:00</div><div class="clock-caption" id="clockBreakdown">잠입 00:00 · 학습 00:00</div><div class="clock-caption">지도·일시정지 시간 제외</div><div class="stats-row"><span>정답 <b id="hudCorrect">0</b></span><span>오답 <b id="hudWrong">0</b></span></div></section>
+      <section class="card quick-card"><div class="card-head"><h3>빠른 조작</h3><span>CONTROLS</span></div><div class="quick-keys"><span>이동</span><kbd>W A S D</kbd></div><div class="quick-keys"><span>자세 바꾸기</span><kbd>Shift</kbd></div><div class="quick-keys"><span>제압 / 시체 운반</span><kbd>Space</kbd></div><div class="quick-keys"><span>문 열기 / 닫기</span><kbd>F</kbd></div><div class="quick-keys"><span>폭탄 해체</span><kbd>E</kbd></div><div class="quick-keys"><span>일시정지</span><kbd>P / Esc</kbd></div></section>
+    </aside>
+  </main>
+  <p class="touch-help">터치 화면: 지도에서 손가락을 끌어 이동하고, 아래 버튼으로 조작하세요. 정밀한 잠입에는 PC 키보드·마우스를 권장합니다.</p>
+  <footer class="footer"><span>세 개의 구역, 정확한 계산. &nbsp;모든 폭탄을 멈추세요.</span><span>SILENT VILLAGE · ver1.04 · made by yoonsungho</span></footer>
+</div>
+<script>
+
+(() => {
+  'use strict';
+  // 외부 파일 없이 실행되는 Canvas 잠입 게임. 각 스테이지의 논리 좌표와 플레이어 추적 카메라를 사용합니다.
+  const VERSION = '1.04', TAU = Math.PI * 2;
+  const $ = id => document.getElementById(id);
+  const clamp = (n,a,b) => Math.max(a,Math.min(b,n));
+  const distance = (a,b) => Math.hypot(a.x-b.x,a.y-b.y);
+  const wrap = a => Math.atan2(Math.sin(a),Math.cos(a));
+  const randint = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+  const clock = n => String(Math.floor(n/60)).padStart(2,'0')+':'+String(Math.floor(n%60)).padStart(2,'0');
+  const STANCES = [{name:'서기',speed:185,noise:155,label:'이동 빠름'},{name:'앉기',speed:112,noise:62,label:'이동 보통'},{name:'포복',speed:58,noise:0,label:'이동 느림'}];
+  const CONFIG = {
+    training:{label:'연습',speed:31,range:185,halfAngle:Math.PI*27/180,roamRadius:480,replanRange:[9,16],pauseRange:[.5,1.3],description:'무작위 순찰 · 짧은 시야 · 느린 이동'},
+    standard:{label:'표준',speed:43,range:245,halfAngle:Math.PI*30/180,roamRadius:590,replanRange:[7,13],pauseRange:[.325,.925],description:'무작위 순찰 · 중간 병력 · 중간 시야 · 보통 이동'},
+    challenge:{label:'도전',speed:55,range:305,halfAngle:Math.PI*33/180,roamRadius:700,replanRange:[5,10],pauseRange:[.15,.55],description:'무작위 순찰 · 최대 24명 · 긴 시야 · 빠른 이동'}
+  };
+  function rr(ctx,x,y,w,h,r=5){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}
+  function disc(ctx,x,y,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();}
+  function line(ctx,x1,y1,x2,y2,color,width=1){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+  function text(ctx,str,x,y,size,color,align='left',weight='400'){ctx.font=weight+' '+size+'px "Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",sans-serif';ctx.textAlign=align;ctx.fillStyle=color;ctx.fillText(str,x,y);}
+  function segmentDistanceSq(p,a,b){const vx=b.x-a.x,vy=b.y-a.y,den=vx*vx+vy*vy;const t=den?clamp(((p.x-a.x)*vx+(p.y-a.y)*vy)/den,0,1):0;return (p.x-a.x-t*vx)**2+(p.y-a.y-t*vy)**2;}
+  function pointInPoly(p,poly){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a.y>p.y)!==(b.y>p.y)&&p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x)inside=!inside;}return inside;}
+  function circleInPoly(p,r,poly){if(!poly||poly.length<3)return false;if(pointInPoly(p,poly))return true;for(let i=0;i<poly.length;i++)if(segmentDistanceSq(p,poly[i],poly[(i+1)%poly.length])<r*r-0.001)return true;return false;}
+
+  class Sound {
+    constructor(){this.enabled=false;this.ctx=null;}
+    toggle(){this.enabled=!this.enabled;if(this.enabled){try{this.ctx=this.ctx||new(window.AudioContext||window.webkitAudioContext)();this.ctx.resume().catch(()=>{});}catch{this.enabled=false;}}$('soundBtn').textContent=this.enabled?'소리 켬':'소리 끔';$('soundBtn').setAttribute('aria-pressed',String(this.enabled));if(this.enabled)this.play('correct');}
+    play(kind){if(!this.enabled||!this.ctx)return;try{const notes={correct:[620,830],wrong:[150,110],disarm:[440,660,880],fail:[190,140,85],step:[80],action:[120,90],win:[523,659,784,1047]};(notes[kind]||[400]).forEach((f,i)=>{const o=this.ctx.createOscillator(),g=this.ctx.createGain(),t=this.ctx.currentTime+i*.085;o.type=kind==='step'?'sine':'triangle';o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(kind==='step'?.014:.055,t+.009);g.gain.exponentialRampToValueAtTime(.001,t+.11);o.connect(g);g.connect(this.ctx.destination);o.start(t);o.stop(t+.12);});}catch{}}
+  }
+
+  // 각 스테이지는 독립된 지형·건물·초기 경비 배치를 사용합니다.
+  const STAGES = [
+    {
+      name:'녹음 마을',subtitle:'낮은 담장과 작은 주택',level:'쉬움',lesson:'한 자리 수 덧셈·뺄셈 / 쉬운 구구단',w:2400,h:1600,spawn:[160,1420],
+      palette:{ground:'#2c423a',road:'#3b5147',floor:'#576456',wall:'#85918a',water:'#294d5b',accent:'#c5efb0'},
+      roads:[[20,440,2360,135],[20,1300,2360,180],[560,20,160,1560],[1270,20,170,1560]],
+      buildings:[
+        {id:'home-a',name:'주택 A',x:180,y:1030,w:320,h:230,doors:[['bottom',.3,90]],props:[[208,1060,122,58,'bed'],[390,1060,60,45,'desk']]},
+        {id:'home-b',name:'주택 B',x:170,y:610,w:340,h:260,doors:[['right',.6,90]],props:[[205,650,105,60,'bed'],[350,650,80,55,'table']]},
+        {id:'hall',name:'주민 회관',x:300,y:170,w:520,h:270,doors:[['bottom',.6,100]],props:[[345,215,160,50,'desk'],[625,230,100,70,'table']]},
+        {id:'supply',name:'보급 창고',x:760,y:930,w:440,h:330,doors:[['bottom',.5,100]],props:[[805,975,85,70,'crate'],[1030,980,90,75,'crate']]},
+        {id:'comms',name:'통신소',x:1480,y:770,w:420,h:340,doors:[['bottom',.5,100]],props:[[1530,820,105,55,'desk'],[1540,960,85,70,'crate']]},
+        {id:'gate',name:'북문 관리소',x:1750,y:160,w:410,h:300,doors:[['left',.6,95]],props:[[1800,200,95,60,'desk'],[2020,330,80,60,'crate']]}
+      ],
+      obstacles:[[590,1110,70,70],[1130,1420,80,55],[1200,670,65,90],[850,720,115,45],[2080,1120,95,65],[1480,1350,75,70]],
+      fences:[[1260,220,22,340]],water:[],partitions:[],
+      bombs:[[360,1160,'주택 A · 실내'],[1020,495,'시장 광장 · 야외'],[1750,945,'통신소 · 실내'],[1970,285,'북문 관리소 · 실내']],
+      patrols:[
+        [[920,1460],[580,1460],[580,1320],[920,1320]],
+        [[260,510],[650,510],[650,800],[575,800],[575,510]],
+        [[1390,1200],[1990,1200],[1990,710],[1390,710]],
+        [[2240,520],[1680,520],[1680,90],[2240,90]]
+      ]
+    },
+    {
+      name:'푸른 수로 지구',subtitle:'두 개의 다리와 물류 시설',level:'보통',lesson:'두 자리 수 덧셈·뺄셈 / 구구단 / 나누어떨어지는 나눗셈',w:2800,h:1800,spawn:[180,1590],
+      palette:{ground:'#253e49',road:'#344e59',floor:'#4a6068',wall:'#82979f',water:'#173b57',accent:'#9fdbef'},
+      roads:[[20,330,2760,220],[20,1120,2760,180],[1010,20,220,1760],[2140,20,135,1760]],
+      buildings:[
+        {id:'dock',name:'서부 선착장',x:150,y:1150,w:450,h:300,doors:[['bottom',.4,105]],props:[[200,1190,110,75,'crate'],[440,1340,85,50,'desk']]},
+        {id:'logistics',name:'물류 센터',x:250,y:570,w:600,h:320,doors:[['right',.65,105],['bottom',.7,105]],props:[[300,620,130,70,'crate'],[470,730,95,80,'crate']]},
+        {id:'water-control',name:'수문 관제소',x:1550,y:1260,w:430,h:280,doors:[['left',.5,105]],props:[[1600,1300,125,50,'desk'],[1830,1410,70,65,'crate']]},
+        {id:'research',name:'동부 연구소',x:1960,y:550,w:560,h:430,doors:[['bottom',.35,105],['left',.25,95]],props:[[2180,765,95,50,'desk']]},
+        {id:'workshop',name:'남동 작업장',x:2300,y:1250,w:320,h:240,doors:[['top',.5,95]],props:[[2340,1390,110,48,'desk']]},
+        {id:'observatory',name:'관측소',x:1700,y:110,w:370,h:210,doors:[['bottom',.6,95]],props:[[1750,155,90,50,'table']]}
+      ],
+      obstacles:[[740,1480,90,45],[1060,790,95,80],[910,1130,100,60],[2430,1110,110,55],[1510,710,80,65],[1170,1550,65,80]],
+      fences:[],water:[[1270,20,170,310],[1270,620,170,510],[1270,1410,170,370]],partitions:[],
+      bombs:[[405,1300,'서부 선착장 · 실내'],[665,670,'물류 센터 · 실내'],[1750,1375,'수문 관제소 · 실내'],[2330,705,'동부 연구소 · 실내']],
+      patrols:[
+        [[1110,1650],[740,1650],[740,1540],[1110,1540]],
+        [[170,480],[980,480],[980,1020],[170,1020]],
+        [[1090,390],[1570,390],[1570,535],[1090,535]],
+        [[2630,1050],[1870,1050],[1870,460],[2630,460]],
+        [[2050,630],[2390,630],[2390,885],[2050,885]],
+        [[1500,1600],[2160,1600],[2160,1160],[1500,1160]]
+      ]
+    },
+    {
+      name:'보랏빛 요새',subtitle:'구획된 본부와 마지막 회로',level:'어려움',lesson:'음수 / 괄호 / 연산 순서 / 제곱이 포함된 혼합 계산',w:3000,h:2000,spawn:[180,1810],
+      palette:{ground:'#343344',road:'#454354',floor:'#5d5a6b',wall:'#9793a4',water:'#2b3d5c',accent:'#d8c4ff'},
+      roads:[[20,840,2960,180],[20,1740,2960,180],[970,20,170,1960],[1710,20,170,1960]],
+      buildings:[
+        {id:'west-guard',name:'서부 경비실',x:220,y:1230,w:430,h:350,doors:[['bottom',.45,100],['right',.45,95]],props:[[265,1270,120,60,'desk'],[510,1480,75,50,'crate']]},
+        {id:'armory',name:'무기 보급고',x:380,y:420,w:520,h:350,doors:[['bottom',.65,100],['right',.35,95]],props:[[430,465,125,70,'crate'],[450,650,100,55,'crate']]},
+        {id:'power',name:'중앙 발전실',x:1160,y:860,w:430,h:410,doors:[['left',.7,100],['top',.5,95]],props:[[1210,915,95,100,'generator'],[1230,1140,120,60,'desk']]},
+        {id:'archive',name:'기록 보관소',x:1100,y:250,w:470,h:280,doors:[['bottom',.5,100]],props:[[1150,290,130,55,'desk'],[1400,370,95,60,'crate']]},
+        {id:'hq',name:'최종 지휘 본부',x:1910,y:260,w:830,h:1360,doors:[['left',.25,110],['left',.75,110],['bottom',.6,110]],props:[[2110,1030,120,80,'desk'],[2420,1280,110,85,'crate'],[2500,560,80,55,'desk'],[2060,480,75,60,'crate']]}
+      ],
+      obstacles:[[780,1480,100,70],[1400,1530,110,70],[2780,920,50,120],[310,980,80,70],[650,950,115,65]],
+      fences:[[1010,140,24,590],[1010,1050,24,530],[1740,50,24,550],[1740,800,24,930]],water:[],
+      partitions:[{x:1928,y:820,length:794,vertical:false,gaps:[[475,105]],name:'본부 중앙문'},{x:2290,y:278,length:542,vertical:true,gaps:[[300,105]],name:'지휘실 문'}],
+      bombs:[[450,1400,'서부 경비실 · 실내'],[695,600,'무기 보급고 · 실내'],[1420,1080,'중앙 발전실 · 실내'],[2540,440,'지휘실 · 최종 폭탄']],
+      patrols:[
+        [[740,1880],[1250,1880],[1250,1710],[740,1710]],
+        [[150,1150],[740,1150],[740,1650],[150,1650]],
+        [[290,340],[960,340],[960,830],[290,830]],
+        [[1080,760],[1640,760],[1640,1390],[1080,1390]],
+        [[1810,180],[1810,1740],[2860,1740],[2860,180]],
+        [[2000,920],[2610,920],[2610,1500],[2000,1500]],
+        [[1990,350],[2200,350],[2200,715],[1990,715]],
+        [[2400,350],[2630,350],[2630,700],[2400,700]]
+      ]
+    }
+  ];
+
+  // 경로 배열은 초기 배치와 방향만 정합니다. 실제 순찰은 Navigation이 매번 무작위로 선택합니다.
+  const CHALLENGE_PATROLS = [
+    [
+      [[1000,830],[1180,830],[1180,590],[1000,590]],
+      [[2220,1320],[2340,1320],[2340,700],[2220,700]]
+    ],
+    [
+      [[625,815],[750,815],[750,630],[625,630]],
+      [[2190,130],[2600,130],[2600,370],[2190,370]],
+      [[1040,1030],[1215,1030],[1215,1390],[1040,1390]]
+    ],
+    [
+      [[600,500],[800,500],[800,680],[600,680]],
+      [[1320,325],[1525,325],[1525,465],[1320,465]],
+      [[130,150],[920,150],[920,275],[130,275]],
+      [[900,1820],[1600,1820],[1600,1935],[900,1935]]
+    ]
+  ];
+  function getPatrolPaths(stageIndex,difficulty){
+    const base=STAGES[stageIndex].patrols;
+    const stagger=path=>{const offset=Math.floor(path.length/2);return [...path.slice(offset),...path.slice(0,offset)];};
+    if(difficulty==='standard')return [...base,...base.map(stagger)];
+    if(difficulty!=='challenge')return base;
+    const previous=[...base,...CHALLENGE_PATROLS[stageIndex]];
+    // ver1.02의 6/9/12명을 12/18/24명으로 증원. 서로 다른 지점에서 출발합니다.
+    return [...previous,...previous.map(path=>{const offset=Math.floor(path.length/2);return [...path.slice(offset),...path.slice(0,offset)];})];
+  }
+
+  function rectHit(x,y,r,o){const nx=clamp(x,o.x,o.x+o.w),ny=clamp(y,o.y,o.y+o.h);return (x-nx)**2+(y-ny)**2<r*r-.0001;}
+  class Map {
+    constructor(stage=STAGES[0]){
+      this.stage=stage;this.w=stage.w;this.h=stage.h;this.palette=stage.palette;this.buildings=stage.buildings;this.doors=[];this.wallParts=[];this.props=[];
+      this.water=stage.water.map(v=>({x:v[0],y:v[1],w:v[2],h:v[3],type:'water'}));
+      for(const b of this.buildings){
+        const t=18;
+        for(const side of ['top','bottom','left','right']){
+          const vertical=side==='left'||side==='right',len=vertical?b.h:b.w;
+          const gaps=b.doors.filter(d=>d[0]===side).map(d=>[len*d[1]-d[2]/2,d[2]]);
+          this.partition(vertical?(side==='left'?b.x:b.x+b.w-t):b.x,vertical?b.y:(side==='top'?b.y:b.y+b.h-t),len,vertical,gaps,b.name+' 출입문',t);
+        }
+        for(const p of b.props||[])this.props.push({x:p[0],y:p[1],w:p[2],h:p[3],type:p[4]});
+      }
+      for(const p of stage.partitions)this.partition(p.x,p.y,p.length,p.vertical,p.gaps,p.name,18);
+      this.obstacles=stage.obstacles.map(v=>({x:v[0],y:v[1],w:v[2],h:v[3],type:'crate'}));
+      this.fences=stage.fences.map(v=>({x:v[0],y:v[1],w:v[2],h:v[3],type:'wall'}));
+      this.staticWalls=[{x:0,y:0,w:this.w,h:20},{x:0,y:this.h-20,w:this.w,h:20},{x:0,y:0,w:20,h:this.h},{x:this.w-20,y:0,w:20,h:this.h},...this.wallParts,...this.props,...this.obstacles,...this.fences];
+      this.refreshGeometry();this.cache=document.createElement('canvas');this.cache.width=this.w;this.cache.height=this.h;this.paintBase(this.cache.getContext('2d'));
+    }
+    partition(x,y,length,vertical,gaps,name,thickness){
+      const spans=gaps.slice().sort((a,b)=>a[0]-b[0]);let cursor=0;
+      const make=(start,len)=>vertical?{x,y:y+start,w:thickness,h:len}:{x:x+start,y,w:len,h:thickness};
+      for(const [start,width] of spans){if(start>cursor)this.wallParts.push(make(cursor,start-cursor));const r=make(start,width);this.doors.push({...r,id:this.doors.length+1,open:false,name,vertical,cx:r.x+r.w/2,cy:r.y+r.h/2});cursor=start+width;}
+      if(cursor<length)this.wallParts.push(make(cursor,length-cursor));
+    }
+    refreshGeometry(){this.revision=(this.revision||0)+1;this.walls=[...this.staticWalls,...this.doors.filter(d=>!d.open)];this.solids=[...this.walls,...this.water];}
+    free(x,y,r=14){return !this.solids.some(o=>rectHit(x,y,r,o));}
+    move(actor,dx,dy,r=actor.r){const steps=Math.max(1,Math.ceil(Math.max(Math.abs(dx),Math.abs(dy))/4));for(let i=0;i<steps;i++){if(this.free(actor.x+dx/steps,actor.y,r))actor.x+=dx/steps;if(this.free(actor.x,actor.y+dy/steps,r))actor.y+=dy/steps;}}
+    cast(x,y,angle,maxDistance,solids=this.walls){
+      const dx=Math.cos(angle),dy=Math.sin(angle);let nearest=maxDistance;
+      for(const o of solids){let tmin=-Infinity,tmax=Infinity;
+        if(Math.abs(dx)<1e-9){if(x<o.x||x>o.x+o.w)continue;}else{const a=(o.x-x)/dx,b=(o.x+o.w-x)/dx;tmin=Math.max(tmin,Math.min(a,b));tmax=Math.min(tmax,Math.max(a,b));}
+        if(Math.abs(dy)<1e-9){if(y<o.y||y>o.y+o.h)continue;}else{const a=(o.y-y)/dy,b=(o.y+o.h-y)/dy;tmin=Math.max(tmin,Math.min(a,b));tmax=Math.min(tmax,Math.max(a,b));}
+        if(tmax>=Math.max(0,tmin)&&tmin>=0&&tmin<nearest)nearest=tmin;
+      }return {x:x+dx*nearest,y:y+dy*nearest,d:nearest};
+    }
+    clear(a,b){const d=distance(a,b);return d<.01||this.cast(a.x,a.y,Math.atan2(b.y-a.y,b.x-a.x),d).d>=d-.001;}
+    vision(enemy){
+      const near=this.walls.filter(o=>o.x<=enemy.x+enemy.range&&o.x+o.w>=enemy.x-enemy.range&&o.y<=enemy.y+enemy.range&&o.y+o.h>=enemy.y-enemy.range);
+      const offsets=[];for(let i=0;i<=64;i++)offsets.push(-enemy.halfAngle+2*enemy.halfAngle*i/64);
+      for(const o of near)for(const [x,y] of [[o.x,o.y],[o.x+o.w,o.y],[o.x+o.w,o.y+o.h],[o.x,o.y+o.h]]){const a=wrap(Math.atan2(y-enemy.y,x-enemy.x)-enemy.angle);for(const delta of [-.0001,0,.0001])if(a+delta>-enemy.halfAngle&&a+delta<enemy.halfAngle)offsets.push(a+delta);}
+      offsets.sort((a,b)=>a-b);return [{x:enemy.x,y:enemy.y},...offsets.map(a=>this.cast(enemy.x,enemy.y,enemy.angle+a,enemy.range,near))];
+    }
+    roomAt(p){return this.buildings.find(b=>p.x>b.x+18&&p.x<b.x+b.w-18&&p.y>b.y+18&&p.y<b.y+b.h-18);}
+    getDoor(p){return this.doors.filter(d=>Math.hypot(p.x-d.cx,p.y-d.cy)<78&&this.clear(p,{x:clamp(p.x,d.x,d.x+d.w),y:clamp(p.y,d.y,d.y+d.h)})).sort((a,b)=>Math.hypot(p.x-a.cx,p.y-a.cy)-Math.hypot(p.x-b.cx,p.y-b.cy))[0];}
+    toggleDoor(d,actors){if(d.open&&actors.some(a=>rectHit(a.x,a.y,a.radius||a.r||20,d)))return false;d.open=!d.open;this.refreshGeometry();return true;}
+    paintBase(c){
+      const p=this.palette;c.fillStyle=p.ground;c.fillRect(0,0,this.w,this.h);c.strokeStyle='#e7f3ed07';c.lineWidth=1;
+      for(let x=20;x<this.w;x+=50)line(c,x,20,x,this.h-20,'#e7f3ed06');for(let y=20;y<this.h;y+=50)line(c,20,y,this.w-20,y,'#e7f3ed06');
+      for(const r of this.stage.roads){c.fillStyle=p.road;c.fillRect(...r);c.setLineDash([16,22]);if(r[2]>r[3])line(c,r[0],r[1]+r[3]/2,r[0]+r[2],r[1]+r[3]/2,'#ccd5c51b',2);else line(c,r[0]+r[2]/2,r[1],r[0]+r[2]/2,r[1]+r[3],'#ccd5c51b',2);c.setLineDash([]);}
+      for(const o of this.water){c.fillStyle=p.water;c.fillRect(o.x,o.y,o.w,o.h);for(let y=o.y+20;y<o.y+o.h;y+=30)line(c,o.x+15,y,o.x+o.w-15,y,'#90c3e121',2);line(c,o.x-5,o.y,o.x-5,o.y+o.h,'#9babbb66',6);line(c,o.x+o.w+5,o.y,o.x+o.w+5,o.y+o.h,'#9babbb66',6);}
+      for(const b of this.buildings){c.fillStyle='#07111a44';c.fillRect(b.x+8,b.y+10,b.w,b.h);c.fillStyle=p.floor;c.fillRect(b.x,b.y,b.w,b.h);for(let x=b.x+18;x<b.x+b.w-18;x+=42)line(c,x,b.y+18,x,b.y+b.h-18,'#dde9ee0c');for(let y=b.y+18;y<b.y+b.h-18;y+=42)line(c,b.x+18,y,b.x+b.w-18,y,'#dde9ee0c');c.fillStyle='#101c2533';rr(c,b.x+28,b.y+28,Math.min(b.w-56,210),28,3);c.fill();text(c,b.name,b.x+40,b.y+47,13,'#ecf1e7','left','600');}
+      for(const o of [...this.wallParts,...this.fences]){c.fillStyle=p.wall;c.fillRect(o.x,o.y,o.w,o.h);line(c,o.x,o.y+1,o.x+o.w,o.y+1,'#f2f5eb66',2);c.strokeStyle='#101e2855';c.lineWidth=1;c.strokeRect(o.x+.5,o.y+.5,o.w-1,o.h-1);}
+      for(const o of [...this.props,...this.obstacles]){
+        c.fillStyle='#07111a44';c.fillRect(o.x+3,o.y+5,o.w,o.h);c.fillStyle=o.type==='bed'?'#9caaa3':o.type==='generator'?'#657f89':'#808b8b';rr(c,o.x,o.y,o.w,o.h,3);c.fill();c.strokeStyle='#c2ccbd55';c.stroke();
+        if(o.type==='bed'){c.fillStyle='#d7ded0';rr(c,o.x+6,o.y+6,25,o.h-12,4);c.fill();c.fillStyle='#667e81';c.fillRect(o.x+40,o.y+5,o.w-45,o.h-10);}
+        else if(o.type==='desk'){c.fillStyle='#253941';c.fillRect(o.x+10,o.y+8,Math.min(o.w-20,46),o.h-17);line(c,o.x+15,o.y+o.h-14,o.x+45,o.y+o.h-14,'#afd0ca',2);}
+        else if(o.type==='crate'){c.strokeStyle='#2d424e88';c.strokeRect(o.x+6,o.y+6,o.w-12,o.h-12);line(c,o.x+6,o.y+6,o.x+o.w-6,o.y+o.h-6,'#2d424e88');line(c,o.x+o.w-6,o.y+6,o.x+6,o.y+o.h-6,'#2d424e88');}
+        else if(o.type==='generator'){for(let y=o.y+10;y<o.y+o.h-6;y+=10)line(c,o.x+10,y,o.x+o.w-10,y,'#233e4e88',4);}
+      }
+      for(const b of this.buildings){c.fillStyle='#13212bd9';rr(c,b.x+27,b.y+27,Math.min(b.w-54,210),29,3);c.fill();text(c,b.name,b.x+39,b.y+47,13,'#ecf1e7','left','600');}
+      c.strokeStyle='#a9c0b477';c.lineWidth=3;c.strokeRect(20,20,this.w-40,this.h-40);const [sx,sy]=this.stage.spawn;c.strokeStyle='#8aceed88';c.setLineDash([5,7]);c.strokeRect(sx-48,sy-45,96,90);c.setLineDash([]);text(c,'투입 지점',sx,sy+65,13,'#a7d8ec','center');
+      text(c,'N',this.w-75,65,16,'#d2ddd4','center','700');line(c,this.w-75,78,this.w-75,125,'#d2ddd4',2);line(c,this.w-75,78,this.w-82,94,'#d2ddd4',2);line(c,this.w-75,78,this.w-68,94,'#d2ddd4',2);
+    }
+    draw(c,player){c.drawImage(this.cache,0,0);const room=this.roomAt(player);if(room){c.strokeStyle=this.palette.accent+'88';c.lineWidth=2;c.strokeRect(room.x+21,room.y+21,room.w-42,room.h-42);}for(const d of this.doors){c.fillStyle=d.open?'#c6efb019':'#8c7456';c.fillRect(d.x,d.y,d.w,d.h);c.strokeStyle=d.open?'#bfe8a688':'#e6d7a6';c.lineWidth=2;c.strokeRect(d.x+.5,d.y+.5,d.w-1,d.h-1);if(!d.open){disc(c,d.cx,d.cy,3,'#f5d997');}else{line(c,d.x,d.y,d.x+(d.vertical?d.w:8),d.y+(d.vertical?8:d.h),'#d9efba',3);}}}
+  }
+
+  // 보행용 격자는 시야와 별도로 물·가구·닫힌 문까지 반영합니다.
+  // 문이 바뀔 때만 재구축하며, 연결 구역과 A*로 도달 가능한 무작위 목적지를 고릅니다.
+  class Navigation {
+    constructor(map){this.map=map;this.cell=32;this.revision=-1;this.ensure();}
+    segmentClear(a,b,r=14){
+      const dx=b.x-a.x,dy=b.y-a.y,minX=Math.min(a.x,b.x)-r,maxX=Math.max(a.x,b.x)+r,minY=Math.min(a.y,b.y)-r,maxY=Math.max(a.y,b.y)+r;
+      for(const o of this.map.solids){
+        if(o.x>maxX||o.x+o.w<minX||o.y>maxY||o.y+o.h<minY)continue;
+        let lo=0,hi=1;
+        if(Math.abs(dx)<1e-9){if(a.x<o.x-r||a.x>o.x+o.w+r)continue;}
+        else{const t1=(o.x-r-a.x)/dx,t2=(o.x+o.w+r-a.x)/dx;lo=Math.max(lo,Math.min(t1,t2));hi=Math.min(hi,Math.max(t1,t2));}
+        if(Math.abs(dy)<1e-9){if(a.y<o.y-r||a.y>o.y+o.h+r)continue;}
+        else{const t1=(o.y-r-a.y)/dy,t2=(o.y+o.h+r-a.y)/dy;lo=Math.max(lo,Math.min(t1,t2));hi=Math.min(hi,Math.max(t1,t2));}
+        if(lo<=hi)return false;
+      }
+      return true;
+    }
+    ensure(){
+      if(this.revision===this.map.revision)return;
+      this.cols=Math.ceil(this.map.w/this.cell);this.rows=Math.ceil(this.map.h/this.cell);
+      this.nodes=Array(this.cols*this.rows).fill(null);this.groups=[];
+      for(let y=0;y<this.rows;y++)for(let x=0;x<this.cols;x++){
+        const px=(x+.5)*this.cell,py=(y+.5)*this.cell,id=y*this.cols+x;
+        if(this.map.free(px,py,16))this.nodes[id]={id,x:px,y:py,edges:[],group:-1};
+      }
+      for(const n of this.nodes){if(!n)continue;const x=n.id%this.cols,y=Math.floor(n.id/this.cols);
+        for(const [dx,dy] of [[1,0],[0,1],[1,1],[-1,1]]){
+          const nx=x+dx,ny=y+dy;if(nx<0||ny>=this.rows||nx>=this.cols)continue;
+          const next=this.nodes[ny*this.cols+nx];if(!next||!this.segmentClear(n,next))continue;
+          const cost=dx&&dy?Math.SQRT2:1;n.edges.push({id:next.id,cost});next.edges.push({id:n.id,cost});
+        }
+      }
+      for(const n of this.nodes){if(!n||n.group>=0)continue;const group=this.groups.length,queue=[n.id];n.group=group;
+        for(let i=0;i<queue.length;i++)for(const e of this.nodes[queue[i]].edges){const next=this.nodes[e.id];if(next.group<0){next.group=group;queue.push(next.id);}}
+        this.groups.push(queue);
+      }
+      this.revision=this.map.revision;
+    }
+    anchor(p){
+      const cx=Math.floor(p.x/this.cell),cy=Math.floor(p.y/this.cell);let best=null,nearest=Infinity;
+      for(let r=0;r<=5;r++){
+        for(let y=cy-r;y<=cy+r;y++)for(let x=cx-r;x<=cx+r;x++){
+          if(x<0||y<0||x>=this.cols||y>=this.rows||r>0&&Math.max(Math.abs(x-cx),Math.abs(y-cy))!==r)continue;
+          const n=this.nodes[y*this.cols+x];if(!n)continue;const d=distance(p,n);
+          if(d<nearest&&this.segmentClear(p,n)){best=n;nearest=d;}
+        }
+        if(best)return best;
+      }
+      return null;
+    }
+    route(from,start,goal){
+      if(this.segmentClear(from,goal))return [{x:goal.x,y:goal.y}];
+      const count=this.nodes.length,scores=new Float64Array(count),parent=new Int32Array(count),closed=new Uint8Array(count),heap=[];
+      scores.fill(Infinity);parent.fill(-1);scores[start.id]=0;
+      const push=item=>{heap.push(item);let i=heap.length-1;while(i>0){const p=(i-1)>>1;if(heap[p].f<=item.f)break;heap[i]=heap[p];i=p;}heap[i]=item;};
+      const pop=()=>{const top=heap[0],tail=heap.pop();if(heap.length){let i=0;while(i*2+1<heap.length){let child=i*2+1;if(child+1<heap.length&&heap[child+1].f<heap[child].f)child++;if(heap[child].f>=tail.f)break;heap[i]=heap[child];i=child;}heap[i]=tail;}return top;};
+      push({id:start.id,f:distance(start,goal)/this.cell});
+      while(heap.length){const current=pop(),n=this.nodes[current.id];if(closed[n.id])continue;if(n.id===goal.id)break;closed[n.id]=1;
+        for(const edge of n.edges){if(closed[edge.id])continue;const cost=scores[n.id]+edge.cost;
+          if(cost<scores[edge.id]){scores[edge.id]=cost;parent[edge.id]=n.id;push({id:edge.id,f:cost+distance(this.nodes[edge.id],goal)/this.cell});}
+        }
+      }
+      if(start.id!==goal.id&&parent[goal.id]<0)return [];
+      const raw=[];for(let id=goal.id;id>=0;id=parent[id]){const n=this.nodes[id];raw.push({x:n.x,y:n.y});if(id===start.id)break;}raw.reverse();
+      // 모서리를 통과하지 않는 구간만 합쳐 격자 모양의 꺾임을 줄입니다.
+      const path=[];let cursor=from,index=0;
+      while(index<raw.length){let far=index;while(far+1<raw.length&&this.segmentClear(cursor,raw[far+1]))far++;path.push(raw[far]);cursor=raw[far];index=far+1;}
+      return path;
+    }
+    wander(enemy,game){
+      this.ensure();const start=this.anchor(enemy);if(!start)return [];
+      const group=this.groups[start.group],range=enemy.roamRadius,candidates=[];let fallback=null,farthest=0;
+      // 가까운 출입구·폭탄 주변도 불규칙하게 확인하되, 플레이어 위치를 읽지는 않습니다.
+      const landmarks=[...game.bombs.filter(b=>!b.defused),...this.map.doors.map(d=>({x:d.cx,y:d.cy}))].filter(p=>distance(enemy.home,p)<range);
+      const landmark=landmarks.length&&Math.random()<.32?landmarks[randint(0,landmarks.length-1)]:null;
+      for(let i=0;i<120;i++){
+        const n=this.nodes[group[randint(0,group.length-1)]],d=distance(enemy,n),homeDistance=distance(enemy.home,n);
+        if(d>farthest&&d<=range*1.3){farthest=d;fallback=n;}
+        if(d<85||d>range||homeDistance>range)continue;
+        if(landmark&&distance(landmark,n)>190)continue;
+        candidates.push(n);
+      }
+      if(!candidates.length){for(let i=0;i<80;i++){const n=this.nodes[group[randint(0,group.length-1)]],d=distance(enemy,n);if(d>60&&d<range&&distance(enemy.home,n)<range)candidates.push(n);}}
+      const goal=candidates.length?candidates[randint(0,candidates.length-1)]:fallback;
+      if(!goal||distance(enemy,goal)<8)return [];
+      enemy.destination={x:goal.x,y:goal.y};return this.route(enemy,start,goal);
+    }
+  }
+
+  function drawHuman(c,x,y,angle,role,stance=0,walk=0,carrying=false){
+    c.save();c.translate(x,y);c.rotate(angle);
+    if(role==='body'){
+      c.fillStyle='#0b10124d';c.beginPath();c.ellipse(0,3,19,13,0,0,TAU);c.fill();
+      line(c,-9,-4,-19,-9,'#4f373a',5);line(c,-9,4,-16,12,'#4f373a',5);
+      c.fillStyle='#733e43';rr(c,-12,-8,20,16,5);c.fill();disc(c,-2,-11,5,'#64353b');disc(c,1,11,5,'#64353b');disc(c,11,0,7,'#915951');line(c,13,-3,16,-2,'#372f32',2);c.restore();return;
+    }
+    const player=role==='player',main=player?'#559dcd':'#b96559',light=player?'#8ed2f1':'#e5a18a',dark=player?'#254e6a':'#763e3c';
+    c.fillStyle='#07121866';c.beginPath();c.ellipse(-1,3,stance===2?24:18,stance===2?12:17,0,0,TAU);c.fill();
+    const swing=Math.sin(walk)*3;
+    if(stance===2){line(c,-6,-5,-22,-7+swing,dark,6);line(c,-6,5,-21,7-swing,dark,6);line(c,0,-7,13,-10,main,6);line(c,0,7,13,10,main,6);}else{line(c,-3,-5,-12-swing,-6,dark,6);line(c,-3,5,-12+swing,6,dark,6);}
+    c.fillStyle=main;rr(c,-9,-10,18,20,6);c.fill();disc(c,0,-10,5,main);disc(c,0,10,5,main);c.fillStyle=dark;rr(c,-10,-6,6,12,2);c.fill();disc(c,8,0,7,light);disc(c,7,0,5,main);line(c,11,-4,13,3,player?'#d4f2fa':'#f9c2a0',2);line(c,5,9,21,9,'#192a31',4);line(c,18,8,26,8,'#a0b0af',2);
+    if(stance===1){c.strokeStyle='#ffffff25';c.lineWidth=1.2;c.beginPath();c.arc(0,0,15,-1.2,1.2);c.stroke();}
+    if(carrying){line(c,-7,-15,1,-21,'#61383b',4);line(c,-7,14,-2,22,'#61383b',4);c.fillStyle='#733e43';rr(c,-14,-13,12,27,4);c.fill();disc(c,-7,-16,6,'#b4776c');line(c,-5,-12,2,-10,'#a26661',3);}
+    c.restore();
+  }
+
+
+  class Enemy {
+    constructor(id,spawnRoute,config){
+      const [first,next]=spawnRoute;this.id=id;this.x=first[0];this.y=first[1];this.home={x:this.x,y:this.y};this.angle=Math.atan2(next[1]-this.y,next[0]-this.x);
+      this.r=14;this.speed=config.speed;this.range=config.range;this.halfAngle=config.halfAngle;this.roamRadius=config.roamRadius||600;this.replanRange=config.replanRange||[7,13];this.pauseRange=config.pauseRange||[.25,.8];
+      this.alive=true;this.carried=false;this.alertTimer=0;this.alertPoint=null;this.turnPause=0;this.lookAngle=this.angle;this.vision=[];this.walk=0;
+      this.path=[];this.targetIndex=0;this.destination=null;this.planTimer=0;this.navRevision=-1;this.stuckTime=0;
+    }
+    hear(pulse){this.alertPoint={x:pulse.x,y:pulse.y};this.alertTimer=2.2;this.planTimer=0;}
+    rotate(target,dt){this.angle=wrap(this.angle+clamp(wrap(target-this.angle),-dt*3.4,dt*3.4));}
+    plan(game){
+      this.path=game.navigation.wander(this,game);this.targetIndex=0;this.navRevision=game.map.revision;this.stuckTime=0;
+      this.planTimer=this.replanRange[0]+Math.random()*(this.replanRange[1]-this.replanRange[0]);
+      if(!this.path.length)this.planTimer=.6;
+    }
+    update(dt,game){
+      if(!this.alive)return;
+      if(this.alertTimer>0){this.alertTimer=Math.max(0,this.alertTimer-dt);this.rotate(Math.atan2(this.alertPoint.y-this.y,this.alertPoint.x-this.x),dt);}
+      else{
+        this.planTimer-=dt;
+        if(this.navRevision!==game.map.revision){this.turnPause=0;this.plan(game);}
+        if(this.turnPause>0){this.turnPause=Math.max(0,this.turnPause-dt);this.rotate(this.lookAngle,dt);}
+        else{
+          if(this.planTimer<=0)this.plan(game);
+          const target=this.path[this.targetIndex];
+          if(target){
+            const d=distance(this,target),wanted=Math.atan2(target.y-this.y,target.x-this.x);this.rotate(wanted,dt);
+            if(d<1.5){
+              this.targetIndex++;
+              if(this.targetIndex>=this.path.length){this.turnPause=this.pauseRange[0]+Math.random()*(this.pauseRange[1]-this.pauseRange[0]);this.lookAngle=this.angle+(Math.random()-.5)*Math.PI*1.3;this.planTimer=0;}
+            }else if(Math.abs(wrap(wanted-this.angle))<.9){
+              const amount=Math.min(d,this.speed*dt),old={x:this.x,y:this.y};
+              game.map.move(this,(target.x-this.x)/d*amount,(target.y-this.y)/d*amount);
+              const moved=distance(this,old);this.walk+=moved*.15;this.stuckTime=moved<amount*.15?this.stuckTime+dt:0;
+              if(this.stuckTime>.65)this.planTimer=0;
+            }
+          }
+        }
+      }
+      this.vision=game.map.vision(this);
+    }
+    sees(target,radius){return this.alive&&distance(this,target)<this.range+radius&&circleInPoly(target,radius,this.vision);}
+    behind(player,map){const d=distance(this,player);return this.alive&&d<49&&d>0&&((player.x-this.x)*Math.cos(this.angle)+(player.y-this.y)*Math.sin(this.angle))/d<-.35&&map.clear(this,player);}
+    drawVision(c,danger=false){if(!this.alive||!this.vision.length)return;c.beginPath();c.moveTo(this.vision[0].x,this.vision[0].y);for(let i=1;i<this.vision.length;i++)c.lineTo(this.vision[i].x,this.vision[i].y);c.closePath();const g=c.createRadialGradient(this.x,this.y,10,this.x,this.y,this.range);g.addColorStop(0,danger?'#ef625b65':this.alertTimer>0?'#f0b3474d':'#dfc56436');g.addColorStop(1,danger?'#ef625b20':'#dfc5640a');c.fillStyle=g;c.fill();c.strokeStyle=danger?'#ee817966':this.alertTimer>0?'#ffc96b70':'#e6cf8240';c.lineWidth=1;c.stroke();}
+    draw(c){if(!this.alive){if(!this.carried)drawHuman(c,this.x,this.y,this.angle,'body');return;}drawHuman(c,this.x,this.y,this.angle,'enemy',0,this.alertTimer||this.turnPause?0:this.walk);if(this.alertTimer>0){disc(c,this.x,this.y-31,10,'#253137');text(c,'!',this.x,this.y-26,16,'#ffdc72','center','700');}}
+  }
+
+
+  class Player {
+    constructor(spawn=[160,1420]){this.x=spawn[0];this.y=spawn[1];this.angle=-Math.PI/2;this.r=14;this.stance=0;this.carried=null;this.walk=0;this.stepDistance=0;this.moving=false;}
+    get speed(){return this.carried?70:STANCES[this.stance].speed;}
+    get noise(){return this.carried?68:STANCES[this.stance].noise;}
+    get radius(){return this.carried?20:this.r;}
+    setStance(n,game){if(this.carried&&n===2){game.toast('시체를 내려놓아야 포복할 수 있습니다.');return;}this.stance=n;this.stepDistance=0;game.updateHUD();}
+    cycle(game){this.setStance(this.carried?(this.stance===0?1:0):(this.stance+1)%3,game);}
+    update(dt,game){
+      const k=game.keys;let dx=(k.has('KeyD')||k.has('ArrowRight')?1:0)-(k.has('KeyA')||k.has('ArrowLeft')?1:0),dy=(k.has('KeyS')||k.has('ArrowDown')?1:0)-(k.has('KeyW')||k.has('ArrowUp')?1:0);
+      if(game.touch.active){dx=game.touch.dx;dy=game.touch.dy;}const length=Math.hypot(dx,dy);if(length>1){dx/=length;dy/=length;}
+      // 키보드만 써도 항상 이동 방향을 봅니다. 최근 마우스 움직임이나 우클릭 조준만 우선합니다.
+      const mouseAim=game.mouse.active&&(game.mouse.held||performance.now()-game.mouse.lastMove<450);
+      if(game.touch.active&&length>.1)this.angle=Math.atan2(dy,dx);
+      else if(mouseAim){const p=game.screenToWorld(game.mouse.sx,game.mouse.sy);if(distance(this,p)>3)this.angle=Math.atan2(p.y-this.y,p.x-this.x);}
+      else if(length>.01)this.angle=Math.atan2(dy,dx);
+      const old={x:this.x,y:this.y};game.map.move(this,dx*this.speed*dt,dy*this.speed*dt,this.radius);const moved=distance(this,old);this.moving=moved>.02;
+      if(this.moving){this.walk+=moved*.16;this.stepDistance+=moved;if(this.noise&&this.stepDistance>=(this.carried?25:this.stance===0?30:36)){this.stepDistance=0;game.pulses.push({x:this.x,y:this.y,r:0,max:this.noise,hit:new Set()});game.sound.play('step');}}else this.stepDistance=0;
+    }
+    draw(c){drawHuman(c,this.x,this.y,this.angle,'player',this.stance,this.moving?this.walk:0,!!this.carried);c.save();c.translate(this.x,this.y);c.rotate(this.angle);c.fillStyle='#c0ebff';c.beginPath();c.moveTo(35,0);c.lineTo(28,-4);c.lineTo(28,4);c.closePath();c.fill();c.restore();c.strokeStyle='#a5d9f3aa';c.lineWidth=1.3;c.beginPath();c.arc(this.x,this.y,21,this.angle+Math.PI*.55,this.angle+Math.PI*1.45);c.stroke();}
+  }
+
+  const signed=n=>n<0?'(−'+Math.abs(n)+')':String(n);
+  function makeQuestion(stage,kind){
+    let a,b,c,expression,answer,hint;
+    if(stage===0){
+      a=randint(1,9);b=randint(1,9);
+      if(kind==='mul'){a=randint(2,5);b=randint(1,5);expression=a+' × '+b;answer=a*b;hint=a+'를 '+b+'번 더해 보세요.';}
+      else if(kind==='sub'){if(a<b)[a,b]=[b,a];expression=a+' − '+b;answer=a-b;hint=a+'에서 '+b+'만큼 줄여 보세요.';}
+      else{expression=a+' + '+b;answer=a+b;hint='큰 수에서 시작해 작은 수만큼 더 세어 보세요.';}
+    }else if(stage===1){
+      a=randint(10,99);b=randint(10,99);
+      if(kind==='mul'){a=randint(2,9);b=randint(2,9);expression=a+' × '+b;answer=a*b;hint='구구단을 떠올리거나 같은 수를 반복해서 더해 보세요.';}
+      else if(kind==='div'){b=randint(2,9);answer=randint(2,9);a=b*answer;expression=a+' ÷ '+b;hint=b+'에 어떤 수를 곱하면 '+a+'이 될까요?';}
+      else if(kind==='sub'){if(a<b)[a,b]=[b,a];expression=a+' − '+b;answer=a-b;hint='일의 자리부터 계산하고, 필요하면 받아내림을 하세요.';}
+      else{expression=a+' + '+b;answer=a+b;hint='일의 자리와 십의 자리를 나눠 더하고 받아올림을 확인하세요.';}
+    }else{
+      if(kind==='add'){a=-randint(4,25);b=randint(5,35);c=randint(3,15);expression='('+signed(a)+' + '+b+') + '+signed(-c);answer=a+b-c;hint='괄호 안부터 계산하고, 음수를 더하는 것은 그 크기만큼 빼는 것임을 생각하세요.';}
+      else if(kind==='sub'){a=randint(-18,18);b=-randint(3,18);c=randint(2,15);expression='('+signed(a)+' − '+signed(b)+') − '+c;answer=a-b-c;hint='음수를 빼면 양수를 더합니다. 안쪽 괄호부터 계산하세요.';}
+      else if(kind==='mul'){a=randint(3,9);b=randint(4,15);c=randint(5,18);expression=a+' × ('+b+' − '+c+')';answer=a*(b-c);hint='괄호 안의 뺄셈을 먼저 하고 곱하세요. 답이 음수일 수도 있습니다.';}
+      else if(kind==='div'){b=randint(3,9);answer=randint(-8,12);c=randint(4,15);a=(answer+c)*b;expression=signed(a)+' ÷ '+b+' + '+signed(-c);hint='나눗셈을 먼저 하고, 음수를 더하세요.';}
+      else{a=randint(3,9);b=randint(2,9);c=randint(2,9);expression=a+'² − ('+b+' × '+c+')';answer=a*a-b*c;hint='제곱과 괄호 안의 곱셈을 각각 계산한 뒤 빼세요.';}
+    }
+    return {a,b,c,kind,stage,expression,answer,hint};
+  }
+  class Bomb {
+    constructor(id,x,y,name,mode='mixed',stage=0){this.id=id;this.x=x;this.y=y;this.name=name;this.stage=stage;this.progress=0;this.needed=5;this.defused=false;this.questions=this.makeQuestions(mode);this.misses=0;}
+    makeQuestions(mode){const bags=[['add','add','sub','sub','mul'],['add','sub','mul','div','add'],['add','sub','mul','div','power']];const kinds=mode==='mixed'?bags[this.stage].slice():Array(5).fill(mode);for(let i=4;i>0;i--){const j=randint(0,i);[kinds[i],kinds[j]]=[kinds[j],kinds[i]];}const seen=new Set();return kinds.map(k=>{let q;do{q=makeQuestion(this.stage,k);}while(seen.has(q.expression));seen.add(q.expression);return q;});}
+    get current(){return this.questions[this.progress];}
+    draw(c,time,near){
+      c.save();c.translate(this.x,this.y);const pulse=.5+.5*Math.sin(time*3+this.id);c.strokeStyle=this.defused?'#bdeea380':near?'#f2d894dd':'#e0c58877';c.lineWidth=1.5;c.setLineDash(this.defused?[]:[4,5]);c.beginPath();c.arc(0,0,near?33:29,0,TAU);c.stroke();c.setLineDash([]);
+      if(this.defused)for(let i=0;i<4;i++){const a=time*.8+i*TAU/4,r=23+4*Math.sin(time*2+i),x=Math.cos(a)*r,y=Math.sin(a)*r;line(c,x-3,y,x+3,y,'#c8f5b3aa',1.2);line(c,x,y-3,x,y+3,'#c8f5b3aa',1.2);}
+      c.fillStyle='#0b1015';rr(c,-15,-15,30,30,4);c.fill();c.strokeStyle=this.defused?'#9cd58b':'#8c9689';c.stroke();c.fillStyle=this.defused?'#396d49':'#253334';c.fillRect(-11,-11,22,21);line(c,-10,0,9,0,this.defused?'#92dba0':'#c58270',2);line(c,-6,-10,-6,10,'#8a9b92',2);disc(c,8,-7,2,this.defused?'#c5ffb2':pulse>.5?'#ffc786':'#89583e');text(c,this.defused?'✓':String(this.id).padStart(2,'0'),0,43,12,this.defused?'#c5efb0':'#f0d38c','center','700');for(let i=0;i<5;i++){c.fillStyle=i<this.progress?'#b9eb9f':'#53645d';c.fillRect(-14+i*6,19,4,3);}c.restore();
+    }
+  }
+
+  class Game {
+    constructor(){
+      this.canvas=$('gameCanvas');this.ctx=this.canvas.getContext('2d');this.sound=new Sound();this.keys=new Set();this.touch={active:false,id:null,dx:0,dy:0};this.mouse={active:false,held:false,sx:0,sy:0,lastMove:-Infinity};
+      this.options={difficulty:'training',math:'mixed'};this.state='intro';this.helpReturn='intro';this.pauseReturn='playing';this.viewW=1280;this.viewH=800;this.scale=1;this.camera={x:0,y:0};this.lastTime=0;this.timerAt=performance.now();this.lastHUD=0;this.toastTimer=null;
+      this.resetCampaign();this.bind();this.updateDifficultyPreview();this.resize();new ResizeObserver(()=>this.resize()).observe($('viewport'));this.setState('intro');requestAnimationFrame(t=>this.frame(t));
+    }
+    get stage(){return STAGES[this.stageIndex];}
+    get totalTime(){return this.stageStats.reduce((n,s)=>n+s.move+s.learn,0);}
+    get moveTime(){return this.stageStats.reduce((n,s)=>n+s.move,0);}
+    get learnTime(){return this.stageStats.reduce((n,s)=>n+s.learn,0);}
+    resetCampaign(){this.stageStats=STAGES.map(()=>({move:0,learn:0,correct:0,wrong:0,retries:0,cleared:false}));this.correct=0;this.wrong=0;this.takedowns=0;this.mistakes=[];this.timerAt=performance.now();this.loadStage(0);}
+    loadStage(index){
+      this.clearInput();this.stageIndex=index;this.map=new Map(this.stage);this.navigation=new Navigation(this.map);this.player=new Player(this.stage.spawn);this.elapsed=0;this.pulses=[];this.activeBomb=null;this.dangerEnemy=null;this.quizSubmitAt=0;this.lastHUD=0;
+      const base=CONFIG[this.options.difficulty],conf={...base,speed:base.speed+index*4,range:base.range+index*20,halfAngle:base.halfAngle+index*.025};
+      this.enemies=getPatrolPaths(index,this.options.difficulty).map((path,i)=>new Enemy(i+1,path,conf));this.bombs=this.stage.bombs.map((b,i)=>new Bomb(i+1,b[0],b[1],b[2],this.options.math,index));
+      for(const e of this.enemies){e.plan(this);e.vision=this.map.vision(e);}this.mouse.active=false;document.documentElement.style.setProperty('--mint',this.stage.palette.accent);this.buildBombList();this.updateCamera();this.updateHUD();
+    }
+    // 실제 경과 시간을 이동·학습으로 나눕니다. 지도/도움말/휴식/탭 이탈 시간은 제외합니다.
+    accountTime(now=performance.now()){
+      const dt=Math.max(0,(now-this.timerAt)/1000);this.timerAt=now;if(!this.stageStats||document.hidden)return;
+      const s=this.stageStats[this.stageIndex];if(this.state==='playing')s.move+=dt;else if(this.state==='math')s.learn+=dt;
+    }
+    hideOverlays(){for(const id of ['introOverlay','quizOverlay','pauseOverlay','helpOverlay','resultOverlay','stageOverlay','tacticalNote'])$(id).hidden=true;}
+    setState(state){
+      this.accountTime();this.state=state;this.clearInput();const names={intro:'STANDBY',playing:'INFILTRATING',math:'DISARMING',paused:'PAUSED',tactical:'RECON',help:'MANUAL',stageclear:'STAGE CLEAR',won:'COMPLETE',lost:'DETECTED'};
+      $('missionStatus').textContent=names[state];$('fieldState').textContent=({intro:'작전 대기',playing:'시야를 피하고 F로 문을 여세요',math:'해체 중 · 적 정지 / 학습 시간 기록',paused:'일시정지',tactical:'전체 지도 · 적의 현재 위치와 방향',help:'조작 안내',stageclear:'구역 안전 확보',won:'세 구역 작전 완료',lost:'발각 · 현재 구역 재도전 가능'})[state];
+      $('contextHint').hidden=true;for(const b of document.querySelectorAll('[data-stance]'))b.disabled=state!=='playing';$('pauseMapBtn').disabled=state==='paused'&&this.pauseReturn==='math';this.updateHUD();
+    }
+    clearInput(){this.keys.clear();this.touch.active=false;this.touch.id=null;this.touch.dx=0;this.touch.dy=0;this.mouse.held=false;this.mouse.lastMove=-Infinity;$('mobileStick').hidden=true;}
+    focusGame(){this.canvas.focus({preventScroll:true});}
+    start(useSettings=true){this.hideOverlays();this.setState('intro');if(useSettings)this.options={difficulty:$('difficulty').value,math:$('mathMode').value};this.resetCampaign();this.setState('playing');this.focusGame();this.toast('1단계 시작 · F 문 열기 · M 전체 지도 · 이동 방향으로 자동 회전');}
+    showIntro(){this.hideOverlays();this.setState('intro');this.resetCampaign();$('introOverlay').hidden=false;$('startBtn').focus({preventScroll:true});}
+    retryStage(){this.hideOverlays();this.setState('paused');this.stageStats[this.stageIndex].retries++;this.loadStage(this.stageIndex);this.setState('playing');this.focusGame();this.toast('현재 스테이지를 다시 시작합니다. 이전 스테이지 완료 기록은 유지됩니다.');}
+    pause(){if(!['playing','math'].includes(this.state))return;this.pauseReturn=this.state;this.hideOverlays();this.setState('paused');$('pauseOverlay').hidden=false;$('resumeBtn').focus({preventScroll:true});}
+    resume(){if(!['paused','tactical'].includes(this.state))return;const next=this.state==='paused'?this.pauseReturn:'playing';this.hideOverlays();this.setState(next);if(next==='math'){$('quizOverlay').hidden=false;$('answerInput').focus({preventScroll:true});}else this.focusGame();}
+    toggleMap(){if(this.state==='tactical'){this.resume();return;}if(!['playing','paused'].includes(this.state)||this.state==='paused'&&this.pauseReturn==='math')return;this.hideOverlays();this.setState('tactical');$('tacticalNote').hidden=false;$('closeMapBtn').focus({preventScroll:true});}
+    showHelp(){if(this.state==='help'){this.closeHelp();return;}this.helpReturn=this.state;this.hideOverlays();this.setState('help');$('helpOverlay').hidden=false;$('closeHelpBtn').focus({preventScroll:true});}
+    closeHelp(){const state=this.helpReturn;this.hideOverlays();this.setState(state);const ids={intro:'introOverlay',math:'quizOverlay',paused:'pauseOverlay',won:'resultOverlay',lost:'resultOverlay',tactical:'tacticalNote',stageclear:'stageOverlay'};if(ids[state])$(ids[state]).hidden=false;if(state==='playing')this.focusGame();else if(state==='math')$('answerInput').focus({preventScroll:true});else(this.focusableInModal()[0]||this.canvas).focus({preventScroll:true});}
+    toast(message){clearTimeout(this.toastTimer);$('toast').textContent=message;$('toast').hidden=false;this.toastTimer=setTimeout(()=>$('toast').hidden=true,2900);}
+    getBomb(){return this.bombs.find(b=>!b.defused&&distance(b,this.player)<62&&this.map.clear(this.player,b));}
+    getTarget(){return this.enemies.filter(e=>e.behind(this.player,this.map)).sort((a,b)=>distance(a,this.player)-distance(b,this.player))[0];}
+    getBody(){return this.enemies.filter(e=>!e.alive&&!e.carried&&distance(e,this.player)<43&&this.map.clear(this.player,e)).sort((a,b)=>distance(a,this.player)-distance(b,this.player))[0];}
+    doorAction(){
+      if(this.state!=='playing')return;const d=this.map.getDoor(this.player);if(!d){this.toast('출입문 가까이에서 F 키를 누르세요.');return;}
+      if(!this.map.toggleDoor(d,[this.player,...this.enemies.filter(e=>!e.carried)])){this.toast('출입구에 사람이 있습니다. 조금 이동한 뒤 문을 닫으세요.');return;}
+      for(const e of this.enemies)if(e.alive)e.vision=this.map.vision(e);this.sound.play('action');this.toast(d.open?'문이 열렸습니다. 실내로 들어갈 수 있습니다.':'문을 닫았습니다. 문이 적의 시야를 가립니다.');this.checkDetection();this.updateContext();
+    }
+    action(){
+      if(this.state!=='playing')return;const p=this.player;
+      if(p.carried){const body=p.carried;let pos={x:p.x-Math.cos(p.angle)*19,y:p.y-Math.sin(p.angle)*19};if(!this.map.free(pos.x,pos.y,20)||!this.map.clear(p,pos))pos={x:p.x,y:p.y};body.x=pos.x;body.y=pos.y;body.angle=p.angle+Math.PI/2;body.carried=false;p.carried=null;this.toast('시체를 내려놓았습니다. 문을 닫거나 벽 뒤에 숨겨 두세요.');this.updateHUD();this.checkDetection();return;}
+      const target=this.getTarget();if(target){target.alive=false;target.alertTimer=0;target.vision=[];this.takedowns++;this.sound.play('action');this.toast('은밀 제압 성공. Space로 시체를 운반할 수 있습니다.');this.checkDetection();return;}
+      const body=this.getBody();if(body){if(!this.map.free(p.x,p.y,20)){this.toast('벽에서 조금 떨어진 뒤 시체를 들어 주세요.');return;}body.carried=true;p.carried=body;if(p.stance===2)p.stance=1;this.toast('시체 운반 중 · 이동 속도 감소 · 포복 불가');this.updateHUD();this.checkDetection();return;}
+      this.toast('적의 등 뒤 가까이에서 제압하거나, 시체 근처에서 운반하세요.');
+    }
+    openQuiz(){
+      if(this.state!=='playing')return;const b=this.getBomb();if(!b){this.toast('폭탄 가까이에서 E 키를 누르세요. 실내 폭탄은 문을 열고 접근하세요.');return;}
+      this.activeBomb=b;this.hideOverlays();this.setState('math');$('quizOverlay').hidden=false;this.quizSubmitAt=0;this.showQuestion();$('quizFeedback').className='quiz-feedback';$('quizFeedback').textContent='적은 움직이지 않습니다. 시간 제한 없이 계산하세요.';$('answerInput').focus({preventScroll:true});
+    }
+    showQuestion(){
+      const b=this.activeBomb;$('quizCode').textContent='STAGE 0'+(this.stageIndex+1)+' / BOMB 0'+b.id;$('quizTitle').textContent=b.name;$('quizDifficulty').textContent=this.stage.level+' · '+this.stage.lesson;$('equation').textContent=b.current.expression+' = ?';$('questionCount').textContent='회로 '+(b.progress+1)+' / 5';$('correctCount').textContent='정답 '+b.progress+'개';
+      $('circuits').replaceChildren(...Array.from({length:5},(_,i)=>{const el=document.createElement('div');el.className='circuit'+(i<b.progress?' complete':i===b.progress?' current':'');return el;}));$('answerInput').value='';$('answerInput').focus({preventScroll:true});
+    }
+    submitAnswer(){
+      if(this.state!=='math'||!this.activeBomb)return;const now=performance.now();if(now-this.quizSubmitAt<180)return;const raw=$('answerInput').value.trim().replace('−','-');
+      if(!/^-?\d{1,4}$/.test(raw)){$('quizFeedback').className='quiz-feedback wrong';$('quizFeedback').textContent='정수로 답을 입력해 주세요. 음수는 − 또는 ± 버튼을 사용할 수 있습니다.';$('answerInput').focus({preventScroll:true});return;}
+      this.quizSubmitAt=now;const b=this.activeBomb,q=b.current,value=Number(raw),stats=this.stageStats[this.stageIndex];
+      if(value===q.answer){
+        b.progress++;b.misses=0;this.correct++;stats.correct++;this.sound.play(b.progress===5?'disarm':'correct');$('quizCard').classList.remove('success-glow');void $('quizCard').offsetWidth;$('quizCard').classList.add('success-glow');
+        if(b.progress===5){b.defused=true;this.activeBomb=null;this.hideOverlays();this.updateHUD();if(this.bombs.every(bomb=>bomb.defused)){this.completeStage();return;}this.setState('playing');this.focusGame();this.toast('폭탄 0'+b.id+' 해체 완료! 다음 폭탄을 찾으세요.');}
+        else{this.showQuestion();$('quizFeedback').className='quiz-feedback correct';$('quizFeedback').textContent='정답입니다. '+b.progress+'번째 회로 해체 완료!';}
+      }else{
+        this.wrong++;stats.wrong++;b.misses++;this.mistakes.push({stage:this.stageIndex+1,expression:q.expression,given:value,answer:q.answer});this.sound.play('wrong');$('quizFeedback').className='quiz-feedback wrong';$('quizFeedback').textContent=b.misses>=2?'힌트: '+q.hint:'아직 정답이 아닙니다. 같은 문제를 다시 계산하세요.';$('quizCard').classList.remove('shake');void $('quizCard').offsetWidth;$('quizCard').classList.add('shake');$('answerInput').focus({preventScroll:true});$('answerInput').select();
+      }this.updateHUD();
+    }
+    leaveQuiz(){if(this.state!=='math')return;this.activeBomb=null;this.hideOverlays();this.setState('playing');this.focusGame();this.toast('맞힌 문제 수는 유지됩니다. E 키로 이어서 풀 수 있습니다.');}
+    completeStage(){
+      this.accountTime();this.stageStats[this.stageIndex].cleared=true;if(this.stageIndex===2){this.finish(true);return;}
+      this.hideOverlays();this.setState('stageclear');this.sound.play('win');const s=this.stageStats[this.stageIndex],next=STAGES[this.stageIndex+1];
+      $('stageClearTitle').textContent='STAGE 0'+(this.stageIndex+1)+' CLEAR';$('stageClearMessage').textContent=this.stage.name+'의 폭탄 4개를 모두 해체했습니다.';$('stageClearTime').textContent=clock(s.move+s.learn);$('stageClearMove').textContent=clock(s.move);$('stageClearLearn').textContent=clock(s.learn);$('nextStageInfo').textContent='다음 구역: '+next.name+' · '+next.level+'\n'+next.lesson;$('nextStageBtn').textContent=(this.stageIndex+2)+'단계 시작';$('stageOverlay').hidden=false;$('nextStageBtn').focus({preventScroll:true});
+    }
+    nextStage(){if(this.state!=='stageclear')return;this.hideOverlays();this.loadStage(this.stageIndex+1);this.setState('playing');this.focusGame();this.toast((this.stageIndex+1)+'단계 · '+this.stage.name+' · '+this.stage.level);}
+    updateWaves(dt){for(const pulse of this.pulses){pulse.r+=dt*235;for(const e of this.enemies){if(!e.alive||pulse.hit.has(e.id))continue;if(distance(pulse,e)<=Math.min(pulse.r,pulse.max)){pulse.hit.add(e.id);e.hear(pulse);}}}this.pulses=this.pulses.filter(p=>p.r<p.max);}
+    checkDetection(){if(this.state!=='playing')return;for(const e of this.enemies){if(!e.alive)continue;if(e.sees(this.player,this.player.radius)){this.dangerEnemy=e;this.finish(false,'player');return;}for(const body of this.enemies)if(!body.alive&&!body.carried&&e.sees(body,20)){this.dangerEnemy=e;this.finish(false,'body');return;}}}
+    update(dt){if(this.state!=='playing')return;this.elapsed+=dt;this.player.update(dt,this);this.updateWaves(dt);for(const e of this.enemies)e.update(dt,this);this.checkDetection();this.updateCamera();this.updateContext();}
+    updateContext(){
+      if(this.state!=='playing'){$('contextHint').hidden=true;return;}const parts=[],b=this.getBomb(),d=this.map.getDoor(this.player);
+      if(b)parts.push('<kbd>E</kbd> 폭탄 해체 '+b.progress+'/5');if(d)parts.push('<kbd>F</kbd> 문 '+(d.open?'닫기':'열기'));
+      if(this.player.carried)parts.push('<kbd>Space</kbd> 시체 내려놓기');else if(this.getTarget())parts.push('<kbd>Space</kbd> 은밀 제압');else if(this.getBody())parts.push('<kbd>Space</kbd> 시체 운반');
+      $('contextHint').hidden=!parts.length;if(parts.length)$('contextHint').innerHTML=parts.join(' &nbsp; / &nbsp; ');
+    }
+    buildBombList(){$('bombList').replaceChildren(...this.bombs.map(b=>{const el=document.createElement('div');el.className='bomb-item';el.id='bombItem'+b.id;el.innerHTML='<div class="bomb-number">0'+b.id+'</div><div class="bomb-info"><strong>'+b.name.split(' · ')[0]+'</strong><span>'+b.name.split(' · ')[1]+' · E 해체</span></div><div class="bomb-progress" id="bombProgress'+b.id+'">0 / 5</div>';return el;}));}
+    updateHUD(){
+      if(!this.bombs)return;const done=this.bombs.filter(b=>b.defused).length;$('bombTotal').textContent=String(done).padStart(2,'0');$('missionProgress').style.width=done/4*100+'%';for(const b of this.bombs){$('bombProgress'+b.id).textContent=b.defused?'완료':b.progress+' / 5';$('bombItem'+b.id).classList.toggle('done',b.defused);}
+      $('stageLabel').textContent='STAGE 0'+(this.stageIndex+1)+' / 03';$('stageName').textContent=this.stage.name;$('stageLevel').textContent='연산 '+this.stage.level+' · '+CONFIG[this.options.difficulty].label+' · 적 '+this.enemies.filter(e=>e.alive).length+'/'+this.enemies.length+'명';$('stageLesson').textContent=this.stage.lesson;$('fieldLocation').textContent=this.stage.name;
+      document.querySelectorAll('[data-stage-dot]').forEach((el,i)=>{el.classList.toggle('active',i===this.stageIndex);el.classList.toggle('done',this.stageStats[i].cleared);el.textContent=this.stageStats[i].cleared?'✓':String(i+1);});
+      const p=this.player,s=STANCES[p.stance];$('stanceName').textContent=p.carried?'시체 운반':s.name;$('speedLabel').textContent=p.carried?'이동 느림':s.label;$('noiseLabel').textContent=p.noise===0?'발소리 없음':p.noise>100?'발소리 큼':'발소리 작음';
+      document.querySelectorAll('[data-stance]').forEach(b=>b.classList.toggle('active',Number(b.dataset.stance)===p.stance));[...$('noiseMeter').children].forEach((el,i)=>el.classList.toggle('on',i<(p.noise===0?0:p.noise>100?5:2)));$('carryState').textContent=p.carried?'시체 운반 중 · 포복 불가':'운반 중인 시체 없음';$('carryState').classList.toggle('active',!!p.carried);
+      $('missionClock').textContent=clock(this.totalTime);$('clockBreakdown').textContent='잠입 '+clock(this.moveTime)+' · 학습 '+clock(this.learnTime);$('hudCorrect').textContent=this.correct;$('hudWrong').textContent=this.wrong;$('coordinates').textContent='X '+String(Math.round(p.x)).padStart(4,'0')+' / Y '+String(Math.round(p.y)).padStart(4,'0');
+    }
+    renderStageTimes(){
+      $('stageTimeRows').replaceChildren(...STAGES.map((st,i)=>{const s=this.stageStats[i],row=document.createElement('tr');for(const v of [(i+1)+'. '+st.name,clock(s.move+s.learn),clock(s.move),clock(s.learn),s.cleared?'완료':i===this.stageIndex?'진행':'대기']){const td=document.createElement('td');td.textContent=v;row.append(td);}return row;}));
+    }
+    finish(won,reason='player'){
+      if(!['playing','math'].includes(this.state))return;this.hideOverlays();this.setState(won?'won':'lost');this.sound.play(won?'win':'fail');$('resultDialog').classList.toggle('danger',!won);$('resultCode').textContent=won?'ALL THREE SECTORS SECURED':'CURRENT SECTOR COMPROMISED';$('resultTitle').textContent=won?'MISSION CLEAR':'MISSION FAILED';
+      $('resultMessage').textContent=won?'세 스테이지의 폭탄 12개를 모두 해체했습니다. 마을의 모든 구역이 안전해졌습니다.':reason==='body'?'순찰병이 시체를 발견했습니다. 실내나 벽 뒤로 옮기고, 문을 닫아 시야를 가려 보세요.':'순찰병의 시야에 노출되었습니다. 현재 스테이지부터 다시 도전할 수 있습니다.';
+      $('resultTime').textContent=clock(this.totalTime);$('resultAccuracy').textContent=this.correct+this.wrong?Math.round(this.correct/(this.correct+this.wrong)*100)+'%':'—';$('resultCorrect').textContent=this.correct;
+      const retries=this.stageStats.reduce((n,s)=>n+s.retries,0);$('resultNote').textContent='총 시간 = 잠입 '+clock(this.moveTime)+' + 학습 '+clock(this.learnTime)+'. 지도·일시정지·단계 안내 시간은 제외됩니다. 재도전 '+retries+'회에 사용한 시간과 풀이도 포함합니다.';
+      this.renderStageTimes();$('reviewWrap').hidden=!this.mistakes.length;$('reviewWrap').open=false;$('reviewList').replaceChildren(...this.mistakes.map(m=>{const li=document.createElement('li');li.textContent='['+m.stage+'단계] '+m.expression+' = '+m.answer+' (입력: '+m.given+')';return li;}));$('retryBtn').textContent=won?'전체 다시 도전':'현재 스테이지 재도전';$('resultOverlay').hidden=false;$('retryBtn').focus({preventScroll:true});
+      if(won)try{const key='silent-village-v103-best-'+this.options.difficulty+'-'+this.options.math,old=Number(localStorage.getItem(key))||Infinity;if(this.totalTime<old){localStorage.setItem(key,String(this.totalTime));$('resultNote').textContent+=' 새 최단 완료 기록!';}}catch{}
+    }
+    resize(){const r=$('viewport').getBoundingClientRect();this.viewW=r.width||1280;this.viewH=r.height||800;this.dpr=Math.min(window.devicePixelRatio||1,2);this.canvas.width=Math.round(this.viewW*this.dpr);this.canvas.height=Math.round(this.viewH*this.dpr);this.updateCamera();this.draw();}
+    updateCamera(){this.scale=clamp(this.viewW/1080,.6,1.15);this.camera.x=clamp(this.player.x-this.viewW/this.scale/2,0,Math.max(0,this.map.w-this.viewW/this.scale));this.camera.y=clamp(this.player.y-this.viewH/this.scale/2,0,Math.max(0,this.map.h-this.viewH/this.scale));}
+    screenToWorld(sx,sy){return {x:sx/this.scale+this.camera.x,y:sy/this.scale+this.camera.y};}
+    drawTacticalMarkers(c){
+      for(const e of this.enemies){if(!e.alive)continue;
+        c.save();c.translate(e.x,e.y);c.rotate(e.angle);c.strokeStyle='#ffb7a5';c.lineWidth=3;c.beginPath();c.arc(0,0,22,0,TAU);c.stroke();
+        c.fillStyle='#ffc7b3';c.beginPath();c.moveTo(43,0);c.lineTo(26,-9);c.lineTo(26,9);c.closePath();c.fill();c.restore();
+      }
+      for(const b of this.bombs){disc(c,b.x,b.y,25,b.defused?'#b9ec9f':'#f5d291');text(c,String(b.id),b.x,b.y+8,23,'#17222b','center','700');text(c,b.name,b.x,b.y+55,22,'#fff0c5','center','600');}
+      for(const d of this.map.doors){disc(c,d.cx,d.cy,11,d.open?'#b9e5ac':'#efc181');}
+      disc(c,this.player.x,this.player.y,20,'#93dcff');text(c,'현재 위치',this.player.x,this.player.y-31,23,'#ccefff','center','600');
+    }
+    drawMinimap(c){
+      const mw=this.viewW<600?126:188,mh=mw*this.map.h/this.map.w,x=this.viewW-mw-17,y=this.viewW<600?this.viewH-mh-70:17;this.miniRect={x,y,w:mw,h:mh};
+      c.fillStyle='#0c1924e8';rr(c,x-5,y-5,mw+10,mh+30,6);c.fill();c.strokeStyle='#a7bdb655';c.stroke();c.save();c.translate(x,y);c.scale(mw/this.map.w,mh/this.map.h);
+      c.fillStyle=this.stage.palette.ground;c.fillRect(0,0,this.map.w,this.map.h);c.fillStyle='#5a7b86';for(const o of this.map.water)c.fillRect(o.x,o.y,o.w,o.h);
+      c.fillStyle='#b8c5c166';for(const o of [...this.map.wallParts,...this.map.fences,...this.map.obstacles])c.fillRect(o.x,o.y,o.w,o.h);
+      const unit=this.map.w/mw;for(const b of this.bombs)disc(c,b.x,b.y,unit*2.6,b.defused?'#bceb9f':'#f4cc80');for(const e of this.enemies)if(e.alive)disc(c,e.x,e.y,unit*1.6,'#e7928c');disc(c,this.player.x,this.player.y,unit*3.4,'#9fe2ff');
+      c.strokeStyle='#a6daf0bb';c.lineWidth=unit;c.strokeRect(this.camera.x,this.camera.y,this.viewW/this.scale,this.viewH/this.scale);c.restore();text(c,'M  전체 지도',x+mw/2,y+mh+17,10,'#c0d2cf','center');
+    }
+    draw(){
+      const c=this.ctx;if(!c||!this.map)return;c.setTransform(this.dpr||1,0,0,this.dpr||1,0,0);c.fillStyle='#15262c';c.fillRect(0,0,this.viewW,this.viewH);c.save();const tactical=this.state==='tactical';
+      if(tactical){const scale=Math.min((this.viewW-26)/this.map.w,(this.viewH-118)/this.map.h),x=(this.viewW-this.map.w*scale)/2,y=88+(this.viewH-118-this.map.h*scale)/2;c.translate(x,y);c.scale(scale,scale);}else{c.scale(this.scale,this.scale);c.translate(-this.camera.x,-this.camera.y);}
+      this.map.draw(c,this.player);for(const e of this.enemies)e.drawVision(c,this.state==='lost'&&this.dangerEnemy===e);
+      for(const pulse of this.pulses){c.strokeStyle='rgba(236,247,242,'+(.32*(1-pulse.r/pulse.max))+')';c.lineWidth=1.5;c.beginPath();c.arc(pulse.x,pulse.y,pulse.r,0,TAU);c.stroke();}
+      const near=this.getBomb();for(const b of this.bombs)b.draw(c,this.elapsed,near===b&&this.state==='playing');for(const e of this.enemies)if(!e.alive)e.draw(c);for(const e of this.enemies)if(e.alive)e.draw(c);this.player.draw(c);
+      if(tactical)this.drawTacticalMarkers(c);
+      else if(this.state==='playing'){const target=this.getTarget();if(target&&!this.player.carried){c.strokeStyle='#c5efb0';c.lineWidth=2;c.beginPath();c.arc(target.x,target.y,23,0,TAU);c.stroke();}const d=this.map.getDoor(this.player);if(d){c.strokeStyle='#f4dd8b';c.lineWidth=2;c.strokeRect(d.x-5,d.y-5,d.w+10,d.h+10);text(c,'F',d.cx,d.cy-20,15,'#ffe6a4','center','700');}if(this.mouse.active&&(this.mouse.held||performance.now()-this.mouse.lastMove<450)){const m=this.screenToWorld(this.mouse.sx,this.mouse.sy);line(c,m.x-6,m.y,m.x+6,m.y,'#d3f0ea99');line(c,m.x,m.y-6,m.x,m.y+6,'#d3f0ea99');}}
+      c.restore();if(!tactical){this.drawMinimap(c);const room=this.map.roomAt(this.player);const width=this.viewW<600?this.viewW-30:Math.min(355,this.viewW-240);c.fillStyle='#132129dc';rr(c,14,14,width,53,6);c.fill();text(c,'STAGE 0'+(this.stageIndex+1)+'  '+this.stage.name,27,35,12,this.stage.palette.accent,'left','600');text(c,room?'실내 · '+room.name:'야외 · 건물 출입문은 F',27,54,11,'#c4d4d5');}
+    }
+    frame(now){const dt=this.lastTime?Math.min((now-this.lastTime)/1000,.035):0;this.lastTime=now;this.accountTime(now);this.update(dt);this.lastHUD+=dt;if(this.lastHUD>.12){this.lastHUD=0;this.updateHUD();}this.draw();requestAnimationFrame(t=>this.frame(t));}
+    pointerScreen(e){const r=this.canvas.getBoundingClientRect();return {sx:e.clientX-r.left,sy:e.clientY-r.top};}
+    focusableInModal(){const overlay=[...document.querySelectorAll('.overlay')].find(el=>!el.hidden);return overlay?[...overlay.querySelectorAll('button,input,select,summary')].filter(el=>!el.disabled):[];}
+    updateDifficultyPreview(){
+      const mode=$('difficulty').value,config=CONFIG[mode];
+      const counts=STAGES.map((_,i)=>getPatrolPaths(i,mode).length).join(' → ');
+      $('difficultySummary').textContent=config.label+' · 단계별 적 '+counts+'명 / '+config.description;
+      $('difficultySummary').classList.toggle('challenge',mode==='challenge');
+    }
+    bind(){
+      $('difficulty').addEventListener('change',()=>this.updateDifficultyPreview());
+      $('startBtn').addEventListener('click',()=>this.start());$('retryBtn').addEventListener('click',()=>this.state==='won'?this.start(false):this.retryStage());$('settingsBtn').addEventListener('click',()=>this.showIntro());$('nextStageBtn').addEventListener('click',()=>this.nextStage());$('resumeBtn').addEventListener('click',()=>this.resume());$('restartBtn').addEventListener('click',()=>this.retryStage());$('pauseBtn').addEventListener('click',()=>this.state==='paused'?this.resume():this.pause());
+      $('mapBtn').addEventListener('click',()=>this.toggleMap());$('pauseMapBtn').addEventListener('click',()=>this.toggleMap());$('closeMapBtn').addEventListener('click',()=>this.resume());$('helpBtn').addEventListener('click',()=>this.showHelp());$('closeHelpBtn').addEventListener('click',()=>this.closeHelp());$('leaveQuizBtn').addEventListener('click',()=>this.leaveQuiz());$('soundBtn').addEventListener('click',()=>{this.sound.toggle();if(this.state==='playing')this.focusGame();});
+      $('fullscreenBtn').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('app').requestFullscreen();}catch{this.toast('이 브라우저에서는 전체 화면을 사용할 수 없습니다.');}finally{if(this.state==='playing')this.focusGame();}});document.addEventListener('fullscreenchange',()=>$('fullscreenBtn').textContent=document.fullscreenElement?'전체 화면 닫기':'전체 화면');
+      document.querySelectorAll('[data-stance]').forEach(b=>b.addEventListener('click',()=>{if(this.state==='playing'){this.player.setStance(Number(b.dataset.stance),this);this.focusGame();}}));
+      $('answerForm').addEventListener('submit',e=>{e.preventDefault();e.stopPropagation();this.submitAnswer();});$('negativeBtn').addEventListener('click',()=>{const el=$('answerInput');el.value=el.value.startsWith('-')?el.value.slice(1):'-'+el.value;el.focus({preventScroll:true});});
+      $('quizOverlay').addEventListener('keydown',e=>{if(e.key==='Tab')return;e.stopPropagation();if(e.key==='Escape'){e.preventDefault();this.leaveQuiz();}else if(e.key==='Enter'&&e.repeat)e.preventDefault();});$('quizOverlay').addEventListener('keyup',e=>e.stopPropagation());
+      window.addEventListener('keydown',e=>{
+        if(e.key==='Tab'){const list=this.focusableInModal();if(list.length){const first=list[0],last=list[list.length-1];if(e.shiftKey&&(document.activeElement===first||!list.includes(document.activeElement))){e.preventDefault();last.focus();}else if(!e.shiftKey&&(document.activeElement===last||!list.includes(document.activeElement))){e.preventDefault();first.focus();}}else if(this.state==='playing')this.pause();return;}
+        if(this.state==='math')return;if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)||e.target.isContentEditable)return;if((e.code==='Space'||e.code==='Enter')&&e.target.closest&&e.target.closest('button'))return;
+        const moveKeys=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'],actions=['ShiftLeft','ShiftRight','Space','KeyE','KeyF','KeyM','KeyP','KeyH','Escape'];if([...moveKeys,...actions].includes(e.code))e.preventDefault();if(e.repeat&&actions.includes(e.code))return;
+        if(e.code==='KeyH'){this.showHelp();return;}if(this.state==='help'){if(e.code==='Escape')this.closeHelp();return;}if(e.code==='KeyM'){this.toggleMap();return;}if(e.code==='Escape'||e.code==='KeyP'){if(this.state==='playing')this.pause();else if(['paused','tactical'].includes(this.state))this.resume();return;}if(this.state!=='playing')return;
+        if(moveKeys.includes(e.code))this.keys.add(e.code);else if(e.code.startsWith('Shift'))this.player.cycle(this);else if(e.code==='Space')this.action();else if(e.code==='KeyE')this.openQuiz();else if(e.code==='KeyF')this.doorAction();
+      });window.addEventListener('keyup',e=>this.keys.delete(e.code));
+      window.addEventListener('blur',()=>{this.clearInput();this.pause();});document.addEventListener('visibilitychange',()=>{if(document.hidden){this.clearInput();this.pause();}});
+      this.canvas.addEventListener('contextmenu',e=>e.preventDefault());
+      this.canvas.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'){if(this.state!=='playing')return;Object.assign(this.mouse,this.pointerScreen(e),{active:true,lastMove:performance.now()});return;}if(!this.touch.active||e.pointerId!==this.touch.id)return;const dx=e.clientX-this.touch.startX,dy=e.clientY-this.touch.startY,len=Math.hypot(dx,dy),max=42;this.touch.dx=len>6?dx/Math.max(max,len):0;this.touch.dy=len>6?dy/Math.max(max,len):0;$('mobileStick').firstElementChild.style.transform='translate('+clamp(dx,-max,max)+'px,'+clamp(dy,-max,max)+'px)';});
+      this.canvas.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'&&!this.mouse.held)this.mouse.active=false;});
+      this.canvas.addEventListener('pointerdown',e=>{
+        if(this.state!=='playing')return;this.focusGame();const pos=this.pointerScreen(e),m=this.miniRect;if(m&&pos.sx>=m.x&&pos.sx<=m.x+m.w&&pos.sy>=m.y&&pos.sy<=m.y+m.h){this.toggleMap();return;}
+        if(e.pointerType==='mouse'){Object.assign(this.mouse,pos,{active:true,lastMove:performance.now(),held:e.button===2});if(e.button===2)this.canvas.setPointerCapture(e.pointerId);return;}
+        e.preventDefault();this.touch={active:true,id:e.pointerId,startX:e.clientX,startY:e.clientY,dx:0,dy:0};this.canvas.setPointerCapture(e.pointerId);$('mobileStick').style.left=pos.sx+'px';$('mobileStick').style.top=pos.sy+'px';$('mobileStick').firstElementChild.style.transform='translate(0,0)';$('mobileStick').hidden=false;
+      });
+      const end=e=>{if(e.pointerType==='mouse')this.mouse.held=false;if(e.pointerId===this.touch.id)this.clearInput();};for(const type of ['pointerup','pointercancel','lostpointercapture'])this.canvas.addEventListener(type,end);
+      $('touchStance').addEventListener('click',()=>{if(this.state==='playing'){this.player.cycle(this);this.focusGame();}});$('touchAction').addEventListener('click',()=>{this.action();if(this.state==='playing')this.focusGame();});$('touchBomb').addEventListener('click',()=>this.openQuiz());$('touchDoor').addEventListener('click',()=>{this.doorAction();if(this.state==='playing')this.focusGame();});$('touchPause').addEventListener('click',()=>this.state==='paused'?this.resume():this.pause());
+    }
+  }
+  const game=new Game();
+  Object.defineProperty(window,'silentVillage',{value:{game,Player,Enemy,Bomb,Map,Navigation,STAGES,CONFIG,CHALLENGE_PATROLS,getPatrolPaths,makeQuestion,circleInPoly,rectHit,version:VERSION},writable:false});
+
+})();
+</script>
+</body>
+</html>

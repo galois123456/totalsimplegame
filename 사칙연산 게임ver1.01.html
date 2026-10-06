@@ -1,0 +1,1426 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>수학 연산 챌린지 오프라인</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      background: #f3f6fb;
+      color: #111827;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      text-align: center;
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 21px;
+    }
+
+    h3 {
+      margin: 18px 0 10px;
+      font-size: 17px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #4b5563;
+      font-size: 15px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .rule-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #374151;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 13px;
+      border: 2px solid #cbd5e1;
+      border-radius: 14px;
+      font-size: 16px;
+      outline: none;
+      background: #ffffff;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+      border-color: #2563eb;
+    }
+
+    .operation-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .operation-item {
+      border: 2px solid #dce3ef;
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      background: #ffffff;
+    }
+
+    .operation-item input {
+      width: 20px;
+      height: 20px;
+      accent-color: #2563eb;
+    }
+
+    .digit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #2563eb;
+      color: #ffffff;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .secondary-button {
+      background: #475569;
+    }
+
+    .danger-button {
+      background: #dc2626;
+    }
+
+    .success-button {
+      background: #16a34a;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .stat-box {
+      background: #eef4ff;
+      border-radius: 14px;
+      padding: 10px 6px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #555;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: bold;
+      color: #1e40af;
+    }
+
+    .progress-wrap {
+      width: 100%;
+      height: 18px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #2563eb;
+      transition: width 0.25s;
+    }
+
+    .question-area {
+      text-align: center;
+      padding: 28px 20px;
+    }
+
+    .question-number {
+      color: #4b5563;
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+
+    .question {
+      font-size: 48px;
+      font-weight: bold;
+      margin: 20px 0;
+      line-height: 1.3;
+      word-break: keep-all;
+    }
+
+    .answer-input {
+      width: 100%;
+      padding: 16px;
+      font-size: 28px;
+      text-align: center;
+      border: 3px solid #cbd5e1;
+      border-radius: 16px;
+      outline: none;
+      margin-bottom: 12px;
+    }
+
+    .answer-input:focus {
+      border-color: #2563eb;
+    }
+
+    .feedback {
+      min-height: 30px;
+      font-size: 21px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .correct {
+      color: #2563eb;
+    }
+
+    .wrong {
+      color: #dc2626;
+    }
+
+    .history-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .history-item {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .rank-item {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .rank-main {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      gap: 10px;
+    }
+
+    .rank-sub {
+      color: #4b5563;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .result-message {
+      font-size: 22px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .warning {
+      color: #dc2626;
+      text-align: center;
+      margin-top: 10px;
+      min-height: 20px;
+      font-weight: bold;
+    }
+
+    .small-text {
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 620px) {
+      .app {
+        padding: 14px;
+      }
+
+      .settings-grid,
+      .operation-list,
+      .digit-grid,
+      .button-row {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .question {
+        font-size: 40px;
+      }
+
+      .answer-input {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <section id="startScreen" class="card">
+    <h1>수학 연산 챌린지</h1>
+
+    <div class="subtitle">
+      오프라인 단일 HTML 파일입니다.<br>
+      학생은 파일을 열고 설정한 뒤 바로 게임을 시작하면 됩니다.
+    </div>
+
+    <div class="rule-box">
+      · 점수: 정답마다 10 × 현재 난이도<br>
+      · 난이도: 정답 5개마다 1단계 상승, 최대 20단계<br>
+      · 자릿수 자동: 난이도가 올라갈수록 숫자 범위 증가<br>
+      · 기록: 이 브라우저의 로컬 스토리지에 저장
+    </div>
+
+    <div class="settings-grid">
+      <div class="field">
+        <label for="playerNameInput">이름</label>
+        <input id="playerNameInput" type="text" placeholder="이름 입력">
+      </div>
+
+      <div class="field">
+        <label for="totalQuestionsInput">목표 문제 수</label>
+        <input id="totalQuestionsInput" type="number" min="1" max="500" value="100">
+      </div>
+    </div>
+
+    <h3>연습할 연산 선택</h3>
+    <div class="operation-list">
+      <label class="operation-item"><input type="checkbox" value="add" checked> 덧셈</label>
+      <label class="operation-item"><input type="checkbox" value="sub" checked> 뺄셈</label>
+      <label class="operation-item"><input type="checkbox" value="mul" checked> 곱셈</label>
+      <label class="operation-item"><input type="checkbox" value="div" checked> 나눗셈</label>
+      <label class="operation-item"><input type="checkbox" value="square"> 제곱</label>
+      <label class="operation-item"><input type="checkbox" value="sqrt"> 제곱근</label>
+      <label class="operation-item"><input type="checkbox" value="cube"> 세제곱</label>
+      <label class="operation-item"><input type="checkbox" value="fourth"> 네제곱</label>
+      <label class="operation-item"><input type="checkbox" value="mixed"> 복합 문제</label>
+    </div>
+
+    <h3>자릿수 설정</h3>
+    <div class="digit-grid">
+      <div class="field">
+        <label for="addDigitSelect">덧셈 자릿수</label>
+        <select id="addDigitSelect">
+          <option value="auto" selected>자동(단계별)</option>
+          <option value="1">한 자리 이하</option>
+          <option value="2">두 자리 이하</option>
+          <option value="3">세 자리 이하</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="subDigitSelect">뺄셈 자릿수</label>
+        <select id="subDigitSelect">
+          <option value="auto" selected>자동(단계별)</option>
+          <option value="1">한 자리 이하</option>
+          <option value="2">두 자리 이하</option>
+          <option value="3">세 자리 이하</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="mulDigitSelect">곱셈 자릿수</label>
+        <select id="mulDigitSelect">
+          <option value="auto" selected>자동(단계별)</option>
+          <option value="1">한 자리 이하</option>
+          <option value="2">두 자리 이하</option>
+          <option value="3">세 자리 이하</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="divDigitSelect">나눗셈 자릿수</label>
+        <select id="divDigitSelect">
+          <option value="auto" selected>자동(단계별)</option>
+          <option value="1">한 자리 이하</option>
+          <option value="2">두 자리 이하</option>
+          <option value="3">세 자리 이하</option>
+        </select>
+      </div>
+    </div>
+
+    <h3>오답 처리 방식</h3>
+    <div class="field">
+      <label for="wrongModeSelect">틀렸을 때 처리</label>
+      <select id="wrongModeSelect">
+        <option value="gameover" selected>틀리면 즉시 게임 오버</option>
+        <option value="reset0">틀릴 때마다 0문제부터 다시 시작</option>
+        <option value="minus1">틀릴 때마다 맞힌 문제 수 -1</option>
+        <option value="minus2">틀릴 때마다 맞힌 문제 수 -2</option>
+        <option value="continue">틀려도 계속 진행</option>
+      </select>
+    </div>
+
+    <div class="small-text" style="margin-top:10px;">
+      감점 기준: 정답 점수와 같은 방식으로 10 × 현재 난이도 × 감점 문제 수를 차감합니다. 점수는 0점 아래로 내려가지 않습니다.
+    </div>
+
+    <button style="margin-top:18px;" onclick="startGame()">게임 시작</button>
+    <div id="startWarning" class="warning"></div>
+  </section>
+
+  <section id="gameScreen" class="hidden">
+    <div class="card stats">
+      <div class="stat-box">
+        <div class="stat-label">점수</div>
+        <div id="scoreText" class="stat-value">0</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-label">정답</div>
+        <div id="correctText" class="stat-value">0</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-label">오답</div>
+        <div id="wrongText" class="stat-value">0</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-label">난이도</div>
+        <div id="levelText" class="stat-value">1</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-label">문제</div>
+        <div id="questionCountText" class="stat-value">1 / 100</div>
+      </div>
+
+      <div class="stat-box">
+        <div class="stat-label">시간</div>
+        <div id="timerText" class="stat-value">0:00</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="progress-wrap">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+    </div>
+
+    <div class="card question-area">
+      <div id="questionNumber" class="question-number">1번 문제</div>
+      <div id="questionText" class="question">3 + 4</div>
+
+      <input
+        id="answerInput"
+        class="answer-input"
+        type="number"
+        inputmode="numeric"
+        placeholder="정답 입력"
+        autocomplete="off"
+      >
+
+      <button onclick="submitAnswer()">제출</button>
+      <div id="feedback" class="feedback"></div>
+    </div>
+
+    <div class="button-row">
+      <button class="secondary-button" onclick="pauseAndReturnToStart()">설정 화면으로</button>
+      <button class="danger-button" onclick="giveUpGame()">포기하고 기록</button>
+    </div>
+
+    <div class="card">
+      <div class="history-title">최근 풀이 기록</div>
+      <div id="historyList" class="history-list"></div>
+    </div>
+  </section>
+
+  <section id="resultScreen" class="card hidden">
+    <div id="resultMessage" class="result-message"></div>
+    <div class="button-row">
+      <button class="success-button" onclick="restartWithSameSettings()">같은 설정으로 다시 시작</button>
+      <button class="secondary-button" onclick="showStartScreen()">설정 화면으로</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="history-title">로컬 랭킹 TOP 10</div>
+    <div id="rankingList" class="history-list"></div>
+    <button class="danger-button" style="margin-top:12px;" onclick="clearRanking()">랭킹 초기화</button>
+  </section>
+
+</div>
+
+<script>
+  const STORAGE_KEY = "offlineMathOperationChallengeRankingV1";
+  const MAX_LEVEL = 20;
+
+  const OPERATION_LABELS = {
+    add: "덧셈",
+    sub: "뺄셈",
+    mul: "곱셈",
+    div: "나눗셈",
+    square: "제곱",
+    sqrt: "제곱근",
+    cube: "세제곱",
+    fourth: "네제곱",
+    mixed: "복합 문제"
+  };
+
+  let settings = null;
+
+  let score = 0;
+  let correctCount = 0;
+  let wrongCount = 0;
+  let level = 1;
+  let currentQuestion = null;
+  let history = [];
+  let isWaitingNext = false;
+  let isGameRunning = false;
+
+  let startTime = null;
+  let timerInterval = null;
+  let elapsedSeconds = 0;
+
+  const startScreen = document.getElementById("startScreen");
+  const gameScreen = document.getElementById("gameScreen");
+  const resultScreen = document.getElementById("resultScreen");
+
+  const playerNameInput = document.getElementById("playerNameInput");
+  const totalQuestionsInput = document.getElementById("totalQuestionsInput");
+  const wrongModeSelect = document.getElementById("wrongModeSelect");
+
+  const scoreText = document.getElementById("scoreText");
+  const correctText = document.getElementById("correctText");
+  const wrongText = document.getElementById("wrongText");
+  const levelText = document.getElementById("levelText");
+  const questionCountText = document.getElementById("questionCountText");
+  const timerText = document.getElementById("timerText");
+  const progressBar = document.getElementById("progressBar");
+
+  const questionText = document.getElementById("questionText");
+  const questionNumber = document.getElementById("questionNumber");
+  const answerInput = document.getElementById("answerInput");
+  const feedback = document.getElementById("feedback");
+  const historyList = document.getElementById("historyList");
+  const rankingList = document.getElementById("rankingList");
+  const resultMessage = document.getElementById("resultMessage");
+
+  answerInput.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+      submitAnswer();
+    }
+  });
+
+  function startGame() {
+    const newSettings = collectSettings();
+
+    if (!newSettings.ok) {
+      document.getElementById("startWarning").textContent = newSettings.message;
+      return;
+    }
+
+    settings = newSettings.value;
+    document.getElementById("startWarning").textContent = "";
+
+    resetGameState();
+
+    startScreen.classList.add("hidden");
+    resultScreen.classList.add("hidden");
+    gameScreen.classList.remove("hidden");
+
+    startTimer();
+    makeQuestion();
+    updateScreen();
+
+    setTimeout(function() {
+      answerInput.focus();
+    }, 50);
+  }
+
+  function collectSettings() {
+    const playerName = playerNameInput.value.trim();
+    const totalQuestions = Number(totalQuestionsInput.value);
+
+    const selectedOperations = Array.from(
+      document.querySelectorAll(".operation-item input:checked")
+    ).map(function(input) {
+      return input.value;
+    });
+
+    if (!playerName) {
+      return {
+        ok: false,
+        message: "이름을 입력하세요."
+      };
+    }
+
+    if (!Number.isInteger(totalQuestions) || totalQuestions < 1 || totalQuestions > 500) {
+      return {
+        ok: false,
+        message: "목표 문제 수는 1부터 500 사이의 정수로 입력하세요."
+      };
+    }
+
+    if (selectedOperations.length === 0) {
+      return {
+        ok: false,
+        message: "연산을 최소 1개 이상 선택하세요."
+      };
+    }
+
+    return {
+      ok: true,
+      value: {
+        playerName: playerName,
+        totalQuestions: totalQuestions,
+        selectedOperations: selectedOperations,
+        wrongMode: wrongModeSelect.value,
+        digitSettings: {
+          add: document.getElementById("addDigitSelect").value,
+          sub: document.getElementById("subDigitSelect").value,
+          mul: document.getElementById("mulDigitSelect").value,
+          div: document.getElementById("divDigitSelect").value
+        }
+      }
+    };
+  }
+
+  function resetGameState() {
+    score = 0;
+    correctCount = 0;
+    wrongCount = 0;
+    level = 1;
+    currentQuestion = null;
+    history = [];
+    isWaitingNext = false;
+    isGameRunning = true;
+    elapsedSeconds = 0;
+
+    clearInterval(timerInterval);
+    answerInput.value = "";
+    feedback.textContent = "";
+    feedback.className = "feedback";
+    renderHistory();
+  }
+
+  function startTimer() {
+    startTime = Date.now();
+    timerText.textContent = "0:00";
+
+    timerInterval = setInterval(function() {
+      if (!isGameRunning) return;
+
+      elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+      timerText.textContent = formatTime(elapsedSeconds);
+    }, 1000);
+  }
+
+  function submitAnswer() {
+    if (!isGameRunning || isWaitingNext) {
+      return;
+    }
+
+    const userAnswerText = answerInput.value.trim();
+
+    if (userAnswerText === "") {
+      feedback.textContent = "정답을 입력하세요.";
+      feedback.className = "feedback wrong";
+      return;
+    }
+
+    const userAnswer = Number(userAnswerText);
+
+    if (userAnswer === currentQuestion.answer) {
+      processCorrectAnswer(userAnswerText);
+    } else {
+      processWrongAnswer(userAnswerText);
+    }
+  }
+
+  function processCorrectAnswer(userAnswerText) {
+    const earnedPoint = 10 * level;
+
+    score += earnedPoint;
+    correctCount++;
+    level = calculateLevel(correctCount);
+
+    feedback.textContent = "정답! +" + earnedPoint + "점";
+    feedback.className = "feedback correct";
+
+    addHistory(currentQuestion.text, userAnswerText, currentQuestion.answer, true, "+" + earnedPoint + "점");
+    updateScreen();
+
+    if (correctCount >= settings.totalQuestions) {
+      isWaitingNext = true;
+
+      setTimeout(function() {
+        finishGame(true, "완주 성공");
+      }, 650);
+
+      return;
+    }
+
+    isWaitingNext = true;
+
+    setTimeout(function() {
+      makeQuestion();
+    }, 650);
+  }
+
+  function processWrongAnswer(userAnswerText) {
+    wrongCount++;
+
+    const mode = settings.wrongMode;
+    const oldCorrectCount = correctCount;
+    let penaltyMultiplier = 1;
+    let message = "오답! 정답은 " + currentQuestion.answer;
+    let shouldFinish = false;
+    let finishReason = "오답";
+
+    if (mode === "gameover") {
+      penaltyMultiplier = 1;
+      shouldFinish = true;
+      finishReason = "오답으로 게임 오버";
+    }
+
+    if (mode === "reset0") {
+      penaltyMultiplier = 0;
+      correctCount = 0;
+      score = 0;
+      message += " / 0문제부터 다시 시작";
+    }
+
+    if (mode === "minus1") {
+      penaltyMultiplier = 1;
+      correctCount = Math.max(0, correctCount - 1);
+      message += " / 맞힌 문제 수 -1";
+    }
+
+    if (mode === "minus2") {
+      penaltyMultiplier = 2;
+      correctCount = Math.max(0, correctCount - 2);
+      message += " / 맞힌 문제 수 -2";
+    }
+
+    if (mode === "continue") {
+      penaltyMultiplier = 1;
+      message += " / 계속 진행";
+    }
+
+    if (mode !== "reset0") {
+      const penalty = 10 * level * penaltyMultiplier;
+      score = Math.max(0, score - penalty);
+      message += " / -" + penalty + "점";
+    } else {
+      message += " / 점수 0점";
+    }
+
+    level = calculateLevel(correctCount);
+
+    feedback.textContent = message;
+    feedback.className = "feedback wrong";
+
+    addHistory(
+      currentQuestion.text,
+      userAnswerText,
+      currentQuestion.answer,
+      false,
+      makeWrongHistoryText(mode, oldCorrectCount, correctCount)
+    );
+
+    updateScreen();
+    isWaitingNext = true;
+
+    if (shouldFinish) {
+      setTimeout(function() {
+        finishGame(false, finishReason);
+      }, 900);
+      return;
+    }
+
+    setTimeout(function() {
+      makeQuestion();
+    }, 900);
+  }
+
+  function makeWrongHistoryText(mode, beforeCount, afterCount) {
+    if (mode === "gameover") return "게임 오버";
+    if (mode === "reset0") return "정답 수 " + beforeCount + " → 0";
+    if (mode === "minus1") return "정답 수 " + beforeCount + " → " + afterCount;
+    if (mode === "minus2") return "정답 수 " + beforeCount + " → " + afterCount;
+    if (mode === "continue") return "계속 진행";
+    return "오답";
+  }
+
+  function finishGame(completed, reason) {
+    if (!isGameRunning) {
+      return;
+    }
+
+    clearInterval(timerInterval);
+    isGameRunning = false;
+    isWaitingNext = false;
+    elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+
+    saveRanking({
+      name: settings.playerName,
+      score: score,
+      correctCount: correctCount,
+      wrongCount: wrongCount,
+      level: level,
+      elapsedSeconds: elapsedSeconds,
+      completed: completed,
+      reason: reason,
+      totalQuestions: settings.totalQuestions,
+      operations: settings.selectedOperations.map(function(op) {
+        return OPERATION_LABELS[op] || op;
+      }).join(", "),
+      wrongMode: getWrongModeLabel(settings.wrongMode),
+      date: new Date().toLocaleString()
+    });
+
+    renderRanking();
+
+    gameScreen.classList.add("hidden");
+    resultScreen.classList.remove("hidden");
+
+    resultMessage.innerHTML =
+      reason + "<br>" +
+      "이름: " + escapeHtml(settings.playerName) + "<br>" +
+      "정답 수: " + correctCount + " / " + settings.totalQuestions + "<br>" +
+      "오답 수: " + wrongCount + "<br>" +
+      "걸린 시간: " + formatTime(elapsedSeconds) + "<br>" +
+      "최종 점수: " + score + "점";
+  }
+
+  function giveUpGame() {
+    if (!isGameRunning) {
+      return;
+    }
+
+    const ok = confirm("현재 기록을 저장하고 게임을 종료할까요?");
+
+    if (!ok) {
+      return;
+    }
+
+    finishGame(false, "중도 포기");
+  }
+
+  function pauseAndReturnToStart() {
+    const ok = confirm("현재 게임을 종료하고 설정 화면으로 돌아갈까요? 이 기록은 저장되지 않습니다.");
+
+    if (!ok) {
+      return;
+    }
+
+    clearInterval(timerInterval);
+    isGameRunning = false;
+    isWaitingNext = false;
+
+    gameScreen.classList.add("hidden");
+    resultScreen.classList.add("hidden");
+    startScreen.classList.remove("hidden");
+    renderRanking();
+  }
+
+  function restartWithSameSettings() {
+    if (!settings) {
+      showStartScreen();
+      return;
+    }
+
+    resetGameState();
+
+    resultScreen.classList.add("hidden");
+    startScreen.classList.add("hidden");
+    gameScreen.classList.remove("hidden");
+
+    startTimer();
+    makeQuestion();
+    updateScreen();
+
+    setTimeout(function() {
+      answerInput.focus();
+    }, 50);
+  }
+
+  function showStartScreen() {
+    clearInterval(timerInterval);
+    isGameRunning = false;
+    isWaitingNext = false;
+
+    gameScreen.classList.add("hidden");
+    resultScreen.classList.add("hidden");
+    startScreen.classList.remove("hidden");
+    renderRanking();
+  }
+
+  function makeQuestion() {
+    const selected = settings.selectedOperations.slice();
+    const nonMixed = selected.filter(function(op) {
+      return op !== "mixed";
+    });
+
+    const mixedOnly = nonMixed.length === 0 && selected.includes("mixed");
+    const canUseMixed = selected.includes("mixed") && (level >= 10 || mixedOnly);
+
+    if (mixedOnly || (canUseMixed && Math.random() < 0.35)) {
+      makeMixedQuestion();
+      return;
+    }
+
+    const operationPool = nonMixed.length > 0 ? nonMixed : ["add"];
+    const operation = operationPool[randomInt(0, operationPool.length - 1)];
+
+    if (operation === "add") makeAddQuestion();
+    if (operation === "sub") makeSubQuestion();
+    if (operation === "mul") makeMulQuestion();
+    if (operation === "div") makeDivQuestion();
+    if (operation === "square") makeSquareQuestion();
+    if (operation === "sqrt") makeSqrtQuestion();
+    if (operation === "cube") makeCubeQuestion();
+    if (operation === "fourth") makeFourthQuestion();
+
+    answerInput.value = "";
+    feedback.textContent = "";
+    feedback.className = "feedback";
+    isWaitingNext = false;
+
+    updateScreen();
+
+    setTimeout(function() {
+      answerInput.focus();
+    }, 50);
+  }
+
+  function makeAddQuestion() {
+    const max = getBinaryOperationMax("add");
+    const a = randomSignedNumber(max);
+    const b = randomSignedNumber(max);
+
+    currentQuestion = {
+      text: formatNumber(a) + " + " + formatNumber(b),
+      answer: a + b
+    };
+  }
+
+  function makeSubQuestion() {
+    const max = getBinaryOperationMax("sub");
+    const a = randomSignedNumber(max);
+    const b = randomSignedNumber(max);
+
+    currentQuestion = {
+      text: formatNumber(a) + " - " + formatNumber(b),
+      answer: a - b
+    };
+  }
+
+  function makeMulQuestion() {
+    const max = getBinaryOperationMax("mul");
+    const a = randomSignedNumber(max);
+    const b = randomSignedNumber(max);
+
+    currentQuestion = {
+      text: formatNumber(a) + " × " + formatNumber(b),
+      answer: a * b
+    };
+  }
+
+  function makeDivQuestion() {
+    const digitMode = settings.digitSettings.div;
+
+    let a;
+    let b;
+    let answer;
+
+    if (digitMode === "auto") {
+      const max = getAutoSmallMaxNumber();
+      b = randomSignedNumber(max);
+      answer = randomSignedNumber(max);
+      a = b * answer;
+    } else {
+      const max = getFixedDigitMax(digitMode);
+      answer = randomSignedNumber(max);
+      const maxDivisor = Math.max(1, Math.floor(max / Math.abs(answer)));
+      b = randomSignedNumber(maxDivisor);
+      a = b * answer;
+    }
+
+    currentQuestion = {
+      text: formatNumber(a) + " ÷ " + formatNumber(b),
+      answer: answer
+    };
+  }
+
+  function makeSquareQuestion() {
+    const max = getAutoSmallMaxNumber();
+    const a = randomSignedNumber(max);
+
+    currentQuestion = {
+      text: formatNumber(a) + "²",
+      answer: a * a
+    };
+  }
+
+  function makeSqrtQuestion() {
+    const max = getAutoSmallMaxNumber();
+    const answer = randomInt(1, max);
+    const a = answer * answer;
+
+    currentQuestion = {
+      text: "√" + a,
+      answer: answer
+    };
+  }
+
+  function makeCubeQuestion() {
+    const max = Math.min(3 + Math.floor(level / 3), 6);
+    const a = randomSignedNumber(max);
+
+    currentQuestion = {
+      text: formatNumber(a) + "³",
+      answer: a * a * a
+    };
+  }
+
+  function makeFourthQuestion() {
+    const max = Math.min(2 + Math.floor(level / 4), 4);
+    const a = randomSignedNumber(max);
+
+    currentQuestion = {
+      text: formatNumber(a) + "⁴",
+      answer: a * a * a * a
+    };
+  }
+
+  function makeMixedQuestion() {
+    const type = randomInt(1, 8);
+
+    let a;
+    let b;
+    let c;
+    let answer;
+    let text;
+
+    if (type === 1) {
+      a = randomInt(1, 10);
+      b = randomInt(1, 10);
+      answer = a * a + b * b;
+      text = a + "² + " + b + "²";
+    }
+
+    if (type === 2) {
+      a = randomInt(1, 12);
+      b = randomInt(1, 12);
+      answer = a * a - b * b;
+      text = a + "² - " + b + "²";
+    }
+
+    if (type === 3) {
+      a = randomInt(1, 5);
+      b = randomInt(1, 10);
+      answer = a * a * a + b * b;
+      text = a + "³ + " + b + "²";
+    }
+
+    if (type === 4) {
+      a = randomInt(1, 4);
+      b = randomInt(1, 10);
+      answer = a * a * a * a - b * b;
+      text = a + "⁴ - " + b + "²";
+    }
+
+    if (type === 5) {
+      a = randomInt(1, 10);
+      b = randomInt(1, 10);
+      answer = a + b * b;
+      text = "√" + (a * a) + " + " + b + "²";
+    }
+
+    if (type === 6) {
+      a = randomInt(1, 5);
+      b = randomInt(1, 10);
+      answer = a * a * a - b;
+      text = a + "³ - √" + (b * b);
+    }
+
+    if (type === 7) {
+      a = randomInt(1, 5);
+      b = randomInt(1, 5);
+      c = randomInt(1, 6);
+      answer = a * a + b * b * b - c;
+      text = a + "² + " + b + "³ - " + c;
+    }
+
+    if (type === 8) {
+      a = randomInt(1, 4);
+      b = randomInt(1, 8);
+      c = randomInt(1, 6);
+      answer = a * a * a * a + b * b - c * c;
+      text = a + "⁴ + " + b + "² - " + c + "²";
+    }
+
+    currentQuestion = {
+      text: text,
+      answer: answer
+    };
+
+    answerInput.value = "";
+    feedback.textContent = "";
+    feedback.className = "feedback";
+    isWaitingNext = false;
+    updateScreen();
+
+    setTimeout(function() {
+      answerInput.focus();
+    }, 50);
+  }
+
+  function getBinaryOperationMax(operation) {
+    const mode = settings.digitSettings[operation];
+
+    if (mode === "auto") {
+      if (operation === "add" || operation === "sub") {
+        return 10 + level * 10;
+      }
+
+      if (operation === "mul" || operation === "div") {
+        return getAutoSmallMaxNumber();
+      }
+    }
+
+    return getFixedDigitMax(mode);
+  }
+
+  function getAutoSmallMaxNumber() {
+    return Math.min(12 + level, 25);
+  }
+
+  function getFixedDigitMax(mode) {
+    if (mode === "1") return 9;
+    if (mode === "2") return 99;
+    if (mode === "3") return 999;
+    return 99;
+  }
+
+  function calculateLevel(count) {
+    return Math.min(Math.floor(count / 5) + 1, MAX_LEVEL);
+  }
+
+  function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function randomSignedNumber(max) {
+    const number = randomInt(1, Math.max(1, max));
+
+    if (Math.random() < 0.7) {
+      return number;
+    }
+
+    return -number;
+  }
+
+  function formatNumber(num) {
+    if (num < 0) {
+      return "(" + num + ")";
+    }
+
+    return String(num);
+  }
+
+  function formatTime(seconds) {
+    seconds = Math.max(0, Number(seconds) || 0);
+
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+
+    return min + ":" + String(sec).padStart(2, "0");
+  }
+
+  function updateScreen() {
+    const currentNumber = Math.min(correctCount + 1, settings.totalQuestions);
+    const percent = Math.min(100, Math.floor(correctCount / settings.totalQuestions * 100));
+
+    scoreText.textContent = score;
+    correctText.textContent = correctCount;
+    wrongText.textContent = wrongCount;
+    levelText.textContent = level;
+    questionCountText.textContent = currentNumber + " / " + settings.totalQuestions;
+    questionNumber.textContent = currentNumber + "번 문제";
+    progressBar.style.width = percent + "%";
+
+    if (currentQuestion) {
+      questionText.textContent = currentQuestion.text;
+    }
+
+    renderHistory();
+  }
+
+  function addHistory(question, userAnswer, correctAnswer, isCorrect, memo) {
+    history.unshift({
+      question: question,
+      userAnswer: userAnswer,
+      correctAnswer: correctAnswer,
+      isCorrect: isCorrect,
+      memo: memo
+    });
+
+    if (history.length > 10) {
+      history.pop();
+    }
+
+    renderHistory();
+  }
+
+  function renderHistory() {
+    historyList.innerHTML = "";
+
+    if (history.length === 0) {
+      historyList.innerHTML = "<div class='small-text'>아직 기록이 없습니다.</div>";
+      return;
+    }
+
+    history.forEach(function(item) {
+      const div = document.createElement("div");
+      div.className = "history-item";
+
+      const left = document.createElement("span");
+      left.textContent = item.question + " = " + item.userAnswer;
+
+      const right = document.createElement("span");
+
+      if (item.isCorrect) {
+        right.textContent = "정답 / " + item.memo;
+        right.className = "correct";
+      } else {
+        right.textContent = "오답 / 정답 " + item.correctAnswer + " / " + item.memo;
+        right.className = "wrong";
+      }
+
+      div.appendChild(left);
+      div.appendChild(right);
+      historyList.appendChild(div);
+    });
+  }
+
+  function getRanking() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (!saved) {
+      return [];
+    }
+
+    try {
+      return JSON.parse(saved);
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function saveRanking(record) {
+    const ranking = getRanking();
+    ranking.push(record);
+
+    ranking.sort(function(a, b) {
+      if (b.score !== a.score) {
+        return b.score - a.score;
+      }
+
+      if (b.correctCount !== a.correctCount) {
+        return b.correctCount - a.correctCount;
+      }
+
+      if (a.elapsedSeconds !== b.elapsedSeconds) {
+        return a.elapsedSeconds - b.elapsedSeconds;
+      }
+
+      return b.totalQuestions - a.totalQuestions;
+    });
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(ranking.slice(0, 10)));
+  }
+
+  function renderRanking() {
+    const ranking = getRanking();
+    rankingList.innerHTML = "";
+
+    if (ranking.length === 0) {
+      rankingList.innerHTML = "<div class='small-text'>아직 기록이 없습니다.</div>";
+      return;
+    }
+
+    ranking.forEach(function(item, index) {
+      const div = document.createElement("div");
+      div.className = "rank-item";
+
+      const main = document.createElement("div");
+      main.className = "rank-main";
+
+      const left = document.createElement("span");
+      left.textContent = (index + 1) + "등 " + item.name;
+
+      const right = document.createElement("span");
+      right.textContent = item.score + "점";
+
+      main.appendChild(left);
+      main.appendChild(right);
+
+      const sub = document.createElement("div");
+      sub.className = "rank-sub";
+
+      const completeText = item.completed ? "완주" : item.reason;
+
+      sub.textContent =
+        completeText +
+        " / 정답 " + item.correctCount + "개" +
+        " / 오답 " + item.wrongCount + "개" +
+        " / 목표 " + item.totalQuestions + "문제" +
+        " / 시간 " + formatTime(item.elapsedSeconds) +
+        " / " + item.wrongMode +
+        " / " + item.date;
+
+      const sub2 = document.createElement("div");
+      sub2.className = "rank-sub";
+      sub2.textContent = "연산: " + item.operations;
+
+      div.appendChild(main);
+      div.appendChild(sub);
+      div.appendChild(sub2);
+      rankingList.appendChild(div);
+    });
+  }
+
+  function clearRanking() {
+    const ok = confirm("랭킹 기록을 모두 삭제할까요?");
+
+    if (!ok) {
+      return;
+    }
+
+    localStorage.removeItem(STORAGE_KEY);
+    renderRanking();
+  }
+
+  function getWrongModeLabel(mode) {
+    if (mode === "gameover") return "오답 즉시 게임 오버";
+    if (mode === "reset0") return "오답 시 0부터 다시 시작";
+    if (mode === "minus1") return "오답 시 정답 수 -1";
+    if (mode === "minus2") return "오답 시 정답 수 -2";
+    if (mode === "continue") return "오답이어도 계속";
+    return mode;
+  }
+
+  function escapeHtml(text) {
+    return String(text)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  renderRanking();
+  renderHistory();
+</script>
+</body>
+</html>

@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>구구단 퀘스트 RPG</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, 0.92);
+      --panel2: rgba(30, 41, 59, 0.94);
+      --line: rgba(148, 163, 184, 0.25);
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --gold: #fbbf24;
+      --cyan: #22d3ee;
+      --green: #4ade80;
+      --red: #fb7185;
+      --purple: #c084fc;
+      --orange: #fb923c;
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: "Pretendard", "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 15%, rgba(34,211,238,.18), transparent 34%),
+        radial-gradient(circle at 85% 10%, rgba(192,132,252,.18), transparent 30%),
+        radial-gradient(circle at 50% 90%, rgba(251,191,36,.12), transparent 35%),
+        linear-gradient(145deg, #020617 0%, #0f172a 45%, #111827 100%);
+      overflow-x: hidden;
+    }
+
+    button, input, select { font: inherit; }
+    button { border: 0; cursor: pointer; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+
+    .app { min-height: 100vh; display: flex; flex-direction: column; }
+    .topbar {
+      position: sticky; top: 0; z-index: 30;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 12px 18px;
+      background: rgba(2, 6, 23, .86);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-icon { font-size: 32px; filter: drop-shadow(0 4px 12px rgba(251,191,36,.35)); }
+    .brand h1 { margin: 0; font-size: clamp(18px, 3vw, 26px); letter-spacing: -.04em; }
+    .brand small { color: var(--muted); display: block; margin-top: 2px; }
+    .top-stats { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .mini-chip {
+      padding: 8px 11px; border-radius: 999px;
+      background: rgba(30,41,59,.85); border: 1px solid var(--line);
+      color: var(--muted); font-weight: 800; white-space: nowrap;
+    }
+
+    .layout { width: min(1280px, 100%); margin: 0 auto; display: grid; grid-template-columns: 210px 1fr; gap: 18px; padding: 18px; flex: 1; }
+    .sidebar {
+      position: sticky; top: 88px; align-self: start;
+      background: rgba(15,23,42,.88); border: 1px solid var(--line); border-radius: 22px;
+      padding: 12px; box-shadow: var(--shadow); backdrop-filter: blur(12px);
+    }
+    .nav-btn {
+      width: 100%; display: flex; align-items: center; gap: 10px;
+      padding: 13px 14px; margin: 6px 0; border-radius: 14px;
+      background: transparent; color: var(--muted); font-weight: 900; text-align: left;
+      transition: .18s ease;
+    }
+    .nav-btn:hover { background: rgba(51,65,85,.65); transform: translateX(2px); }
+    .nav-btn.active { color: #111827; background: linear-gradient(135deg, #fbbf24, #fde68a); box-shadow: 0 10px 28px rgba(251,191,36,.22); }
+    .nav-btn .ico { width: 28px; text-align: center; font-size: 21px; }
+
+    .content { min-width: 0; }
+    .screen { display: none; animation: fadeIn .22s ease; }
+    .screen.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+
+    .hero {
+      min-height: 330px; display: grid; grid-template-columns: 1.2fr .8fr; gap: 18px;
+      background:
+        linear-gradient(135deg, rgba(30,41,59,.96), rgba(15,23,42,.92)),
+        radial-gradient(circle at 80% 20%, rgba(34,211,238,.35), transparent 40%);
+      border: 1px solid var(--line); border-radius: 26px; padding: clamp(22px, 5vw, 46px);
+      box-shadow: var(--shadow); overflow: hidden; position: relative;
+    }
+    .hero::after {
+      content: "×"; position: absolute; right: 2%; bottom: -25%; font-size: 260px; font-weight: 1000;
+      color: rgba(255,255,255,.035); transform: rotate(-12deg); pointer-events: none;
+    }
+    .eyebrow { color: var(--cyan); font-weight: 1000; letter-spacing: .12em; font-size: 13px; }
+    .hero h2 { font-size: clamp(34px, 7vw, 70px); line-height: 1; margin: 14px 0 18px; letter-spacing: -.06em; }
+    .hero h2 span { color: var(--gold); }
+    .hero p { color: var(--muted); line-height: 1.75; font-size: 17px; max-width: 680px; }
+    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 26px; }
+    .hero-pet { display: grid; place-items: center; min-height: 230px; }
+    .pet-orb {
+      width: min(270px, 78vw); aspect-ratio: 1; border-radius: 50%;
+      display: grid; place-items: center; position: relative;
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.24), rgba(34,211,238,.08) 40%, rgba(192,132,252,.12));
+      border: 2px solid rgba(255,255,255,.17); box-shadow: inset 0 0 60px rgba(34,211,238,.13), 0 22px 60px rgba(0,0,0,.35);
+    }
+    .pet-orb .emoji { font-size: 104px; animation: float 2.7s ease-in-out infinite; filter: drop-shadow(0 14px 16px rgba(0,0,0,.35)); }
+    .pet-orb .label { position: absolute; bottom: 22px; font-weight: 1000; color: #e0f2fe; }
+    @keyframes float { 50% { transform: translateY(-12px) rotate(2deg); } }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 17px; border-radius: 14px; font-weight: 1000;
+      color: #0f172a; background: #e2e8f0; box-shadow: 0 8px 20px rgba(0,0,0,.18); transition: .16s ease;
+    }
+    .btn:hover { transform: translateY(-2px); filter: brightness(1.04); }
+    .btn.primary { background: linear-gradient(135deg, #fbbf24, #fde68a); }
+    .btn.cyan { background: linear-gradient(135deg, #22d3ee, #a5f3fc); }
+    .btn.green { background: linear-gradient(135deg, #4ade80, #bbf7d0); }
+    .btn.red { background: linear-gradient(135deg, #fb7185, #fecdd3); }
+    .btn.purple { background: linear-gradient(135deg, #c084fc, #e9d5ff); }
+    .btn.dark { color: var(--text); background: #334155; border: 1px solid var(--line); }
+    .btn.big { padding: 15px 24px; font-size: 18px; }
+    .btn.full { width: 100%; }
+
+    .grid { display: grid; gap: 16px; }
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .grid.cols-4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .section-title { margin: 26px 0 14px; display: flex; justify-content: space-between; align-items: end; gap: 10px; }
+    .section-title h3 { margin: 0; font-size: 24px; }
+    .section-title p { margin: 4px 0 0; color: var(--muted); }
+
+    .card {
+      background: linear-gradient(155deg, rgba(30,41,59,.94), rgba(15,23,42,.94));
+      border: 1px solid var(--line); border-radius: 20px; padding: 18px; box-shadow: 0 14px 36px rgba(0,0,0,.24);
+    }
+    .stat-card { display: flex; gap: 14px; align-items: center; }
+    .stat-icon { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 15px; background: rgba(51,65,85,.78); font-size: 27px; }
+    .stat-value { font-size: 26px; font-weight: 1000; }
+    .stat-label { color: var(--muted); font-size: 14px; margin-top: 3px; }
+
+    .setup-wrap { max-width: 980px; margin: 0 auto; }
+    .setup-section { margin-bottom: 16px; }
+    .setup-section h3 { margin: 0 0 12px; font-size: 19px; }
+    .option-row { display: flex; flex-wrap: wrap; gap: 9px; }
+    .pick {
+      position: relative; display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 14px; border: 1px solid var(--line); border-radius: 13px;
+      background: rgba(51,65,85,.55); color: var(--text); font-weight: 900;
+      user-select: none; cursor: pointer;
+    }
+    .pick input { accent-color: #fbbf24; transform: scale(1.2); }
+    .pick:has(input:checked) { border-color: rgba(251,191,36,.8); background: rgba(251,191,36,.15); color: #fde68a; }
+    .dan-grid { display: grid; grid-template-columns: repeat(8, minmax(58px,1fr)); gap: 9px; }
+    .dan-btn {
+      padding: 13px 6px; border-radius: 13px; color: var(--text); background: rgba(51,65,85,.65);
+      border: 1px solid var(--line); font-weight: 1000;
+    }
+    .dan-btn.selected { background: linear-gradient(135deg, #22d3ee, #67e8f9); color: #083344; box-shadow: 0 8px 20px rgba(34,211,238,.22); }
+
+    .game-shell { max-width: 950px; margin: 0 auto; }
+    .game-hud {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; margin-bottom: 12px;
+    }
+    .hud-item { background: rgba(15,23,42,.9); border: 1px solid var(--line); border-radius: 14px; padding: 10px; text-align: center; }
+    .hud-item b { display: block; font-size: 18px; }
+    .hud-item span { color: var(--muted); font-size: 12px; }
+    .timer-bar { height: 10px; border-radius: 999px; background: rgba(51,65,85,.7); overflow: hidden; margin-bottom: 12px; }
+    .timer-bar > div { height: 100%; width: 100%; background: linear-gradient(90deg, #4ade80, #fbbf24, #fb7185); transition: width .15s linear; }
+    .battle-area {
+      min-height: 480px; border-radius: 26px; padding: 20px; border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(34,211,238,.13), transparent 35%),
+        linear-gradient(155deg, rgba(30,41,59,.96), rgba(2,6,23,.96));
+      box-shadow: var(--shadow); position: relative; overflow: hidden;
+    }
+    .battle-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 90px; }
+    .boss-box { display: flex; align-items: center; gap: 12px; }
+    .boss-emoji { font-size: 62px; filter: drop-shadow(0 12px 14px rgba(0,0,0,.35)); }
+    .boss-name { font-size: 18px; font-weight: 1000; }
+    .hp-bar { width: min(260px, 48vw); height: 14px; background: rgba(51,65,85,.8); border-radius: 999px; overflow: hidden; border: 1px solid var(--line); }
+    .hp-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #fb7185, #ef4444); transition: width .3s ease; }
+    .question-card { text-align: center; padding: 18px 10px 10px; }
+    .mode-badge { display: inline-block; padding: 7px 11px; border-radius: 999px; background: rgba(34,211,238,.14); color: #a5f3fc; font-weight: 900; font-size: 13px; }
+    .question { font-size: clamp(44px, 10vw, 86px); font-weight: 1000; letter-spacing: -.04em; margin: 22px 0; text-shadow: 0 8px 22px rgba(0,0,0,.32); }
+    .answer-zone { max-width: 650px; margin: 0 auto; }
+    .answer-input {
+      width: min(300px, 80vw); text-align: center; font-size: 38px; font-weight: 1000;
+      padding: 12px 16px; border-radius: 16px; border: 2px solid rgba(34,211,238,.45);
+      background: rgba(2,6,23,.75); color: white; outline: none;
+    }
+    .answer-input:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(251,191,36,.12); }
+    .answer-input::-webkit-inner-spin-button, .answer-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .answer-input { appearance: textfield; -moz-appearance: textfield; }
+    .choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 11px; }
+    .choice-btn { padding: 18px; border-radius: 15px; background: rgba(51,65,85,.78); color: var(--text); font-size: 24px; font-weight: 1000; border: 1px solid var(--line); }
+    .choice-btn:hover { background: rgba(71,85,105,.9); transform: translateY(-1px); }
+    .feedback { min-height: 32px; margin-top: 14px; font-size: 19px; font-weight: 1000; }
+    .feedback.ok { color: #86efac; }
+    .feedback.bad { color: #fda4af; }
+    .game-actions { display: flex; justify-content: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+
+    .map-path { display: grid; gap: 14px; }
+    .region-card {
+      display: grid; grid-template-columns: 88px 1fr auto; gap: 16px; align-items: center;
+      border-radius: 20px; padding: 16px; border: 1px solid var(--line); background: rgba(30,41,59,.86);
+    }
+    .region-card.locked { filter: grayscale(.85); opacity: .52; }
+    .region-emoji { width: 78px; height: 78px; display: grid; place-items: center; font-size: 48px; border-radius: 18px; background: rgba(2,6,23,.55); }
+    .region-card h4 { margin: 0 0 6px; font-size: 20px; }
+    .region-card p { color: var(--muted); margin: 0; line-height: 1.55; }
+
+    .pet-grid, .achievement-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+    .pet-card { text-align: center; position: relative; overflow: hidden; }
+    .pet-card.locked { filter: grayscale(1); opacity: .45; }
+    .pet-emoji { font-size: 66px; margin: 10px 0; }
+    .rarity { display: inline-block; padding: 5px 9px; border-radius: 999px; font-size: 12px; font-weight: 1000; }
+    .rarity.common { background: rgba(148,163,184,.18); color: #e2e8f0; }
+    .rarity.rare { background: rgba(59,130,246,.18); color: #93c5fd; }
+    .rarity.epic { background: rgba(168,85,247,.18); color: #d8b4fe; }
+    .rarity.legendary { background: rgba(251,146,60,.18); color: #fdba74; }
+    .rarity.mythic { background: rgba(244,63,94,.18); color: #fda4af; }
+    .affinity { height: 8px; background: rgba(51,65,85,.75); border-radius: 999px; overflow: hidden; margin: 10px 0; }
+    .affinity > div { height: 100%; background: linear-gradient(90deg, #fb7185, #f9a8d4); }
+
+    .food-bar { display: flex; gap: 9px; flex-wrap: wrap; }
+    .food-chip { padding: 9px 11px; border: 1px solid var(--line); border-radius: 12px; background: rgba(51,65,85,.55); font-weight: 900; }
+
+    .achievement-card { position: relative; }
+    .achievement-card.done { border-color: rgba(251,191,36,.55); background: linear-gradient(155deg, rgba(92,63,12,.5), rgba(30,41,59,.95)); }
+    .achievement-head { display: flex; gap: 12px; align-items: center; }
+    .achievement-icon { font-size: 35px; }
+    .achievement-card h4 { margin: 0 0 5px; }
+    .achievement-card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+    .progress { margin-top: 12px; height: 9px; background: rgba(51,65,85,.8); border-radius: 999px; overflow: hidden; }
+    .progress > div { height: 100%; background: linear-gradient(90deg, #22d3ee, #fbbf24); }
+    .progress-text { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; margin-top: 6px; }
+
+    .table-wrap { overflow-x: auto; border-radius: 16px; border: 1px solid var(--line); }
+    table { width: 100%; border-collapse: collapse; min-width: 680px; background: rgba(15,23,42,.72); }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: center; }
+    th { color: #fde68a; background: rgba(30,41,59,.9); position: sticky; top: 0; }
+    tr:last-child td { border-bottom: 0; }
+
+    .bar-row { display: grid; grid-template-columns: 55px 1fr 60px; align-items: center; gap: 10px; margin: 11px 0; }
+    .bar-track { height: 13px; background: rgba(51,65,85,.78); border-radius: 999px; overflow: hidden; }
+    .bar-fill { height: 100%; background: linear-gradient(90deg, #22d3ee, #4ade80); }
+
+    .setting-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .setting-row:last-child { border-bottom: 0; }
+    .switch { position: relative; width: 52px; height: 30px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; inset: 0; border-radius: 999px; background: #475569; transition: .2s; }
+    .slider::before { content: ""; position: absolute; width: 22px; height: 22px; left: 4px; top: 4px; border-radius: 50%; background: white; transition: .2s; }
+    .switch input:checked + .slider { background: #22c55e; }
+    .switch input:checked + .slider::before { transform: translateX(22px); }
+
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 100; display: none; place-items: center; padding: 18px;
+      background: rgba(2,6,23,.76); backdrop-filter: blur(8px);
+    }
+    .modal-backdrop.show { display: grid; }
+    .modal { width: min(560px, 100%); max-height: 90vh; overflow: auto; border-radius: 24px; padding: 24px; background: linear-gradient(155deg, #1e293b, #0f172a); border: 1px solid var(--line); box-shadow: var(--shadow); text-align: center; }
+    .modal .big-emoji { font-size: 78px; }
+    .modal h3 { font-size: 30px; margin: 8px 0; }
+    .modal p { color: var(--muted); line-height: 1.65; }
+
+    .toast-wrap { position: fixed; right: 18px; bottom: 18px; z-index: 120; display: grid; gap: 9px; }
+    .toast { min-width: 260px; max-width: 360px; padding: 13px 15px; border-radius: 14px; background: #1e293b; border: 1px solid var(--line); box-shadow: var(--shadow); animation: slideIn .25s ease; }
+    .toast b { display: block; margin-bottom: 4px; }
+    .toast span { color: var(--muted); font-size: 14px; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } }
+
+    .confetti { position: fixed; width: 10px; height: 16px; z-index: 150; pointer-events: none; animation: confettiFall 1s ease-out forwards; }
+    @keyframes confettiFall { to { transform: translate(var(--dx), var(--dy)) rotate(720deg); opacity: 0; } }
+    .shake { animation: shake .3s ease; }
+    @keyframes shake { 25% { transform: translateX(-7px); } 50% { transform: translateX(7px); } 75% { transform: translateX(-4px); } }
+    .pop { animation: pop .3s ease; }
+    @keyframes pop { 50% { transform: scale(1.08); } }
+
+    .empty { text-align: center; padding: 38px 20px; color: var(--muted); }
+    .muted { color: var(--muted); }
+    .danger { color: #fda4af; }
+    .success { color: #86efac; }
+    .gold { color: #fde68a; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; padding: 12px; }
+      .sidebar { position: fixed; z-index: 50; left: 8px; right: 8px; bottom: 8px; top: auto; display: grid; grid-template-columns: repeat(7, 1fr); padding: 7px; border-radius: 18px; }
+      .nav-btn { padding: 8px 4px; margin: 0; flex-direction: column; gap: 2px; font-size: 10px; text-align: center; }
+      .nav-btn .ico { font-size: 20px; }
+      .content { padding-bottom: 86px; }
+      .hero { grid-template-columns: 1fr; }
+      .hero-pet { min-height: 180px; }
+      .pet-orb { width: 200px; }
+      .pet-orb .emoji { font-size: 78px; }
+      .grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid.cols-3, .pet-grid, .achievement-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .game-hud { grid-template-columns: repeat(3, 1fr); }
+      .dan-grid { grid-template-columns: repeat(4, 1fr); }
+      .region-card { grid-template-columns: 72px 1fr; }
+      .region-card .btn { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 580px) {
+      .topbar { padding: 10px 12px; }
+      .brand small { display: none; }
+      .top-stats .mini-chip:nth-child(n+3) { display: none; }
+      .grid.cols-2, .grid.cols-3, .grid.cols-4, .pet-grid, .achievement-grid { grid-template-columns: 1fr; }
+      .game-hud { grid-template-columns: repeat(2, 1fr); }
+      .choice-grid { grid-template-columns: 1fr; }
+      .battle-area { padding: 14px; min-height: 500px; }
+      .boss-emoji { font-size: 48px; }
+      .question { font-size: 48px; }
+      .sidebar { grid-template-columns: repeat(7, 1fr); }
+      .nav-btn span:last-child { display: none; }
+      .nav-btn { min-height: 48px; }
+      .hero { padding: 24px 18px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">⚔️</div>
+      <div>
+        <h1>구구단 퀘스트 RPG</h1>
+        <small>2단부터 9단까지 모험하며 완전 정복!</small>
+      </div>
+    </div>
+    <div class="top-stats">
+      <div class="mini-chip" id="topPet">🥚 모험의 알</div>
+      <div class="mini-chip" id="topFood">🍎 0</div>
+      <div class="mini-chip" id="topAccuracy">정답률 0%</div>
+      <div class="mini-chip" id="topStreak">최고 0연속</div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <button class="nav-btn active" data-screen="home"><span class="ico">🏠</span><span>홈</span></button>
+      <button class="nav-btn" data-screen="adventure"><span class="ico">🗺️</span><span>모험</span></button>
+      <button class="nav-btn" data-screen="pets"><span class="ico">🐾</span><span>펫</span></button>
+      <button class="nav-btn" data-screen="achievements"><span class="ico">🏆</span><span>업적</span></button>
+      <button class="nav-btn" data-screen="wrongbook"><span class="ico">📖</span><span>오답</span></button>
+      <button class="nav-btn" data-screen="stats"><span class="ico">📊</span><span>통계</span></button>
+      <button class="nav-btn" data-screen="settings"><span class="ico">⚙️</span><span>설정</span></button>
+    </aside>
+
+    <main class="content">
+      <section id="screen-home" class="screen active">
+        <div class="hero">
+          <div>
+            <div class="eyebrow">MULTIPLICATION ADVENTURE</div>
+            <h2>구구단을 풀고<br><span>왕국을 구하자!</span></h2>
+            <p>단답형, 객관식, OX, 빈칸, 순서 암기를 골라 연습하세요. 오답은 자동으로 기록되고, 자주 틀리는 문제는 더 자주 등장합니다.</p>
+            <div class="hero-actions">
+              <button class="btn primary big" onclick="openSetup()">⚔️ 연습 시작</button>
+              <button class="btn cyan big" onclick="showScreen('adventure')">🗺️ 모험 떠나기</button>
+              <button class="btn dark" onclick="showScreen('settings')">⚙️ 설정</button>
+            </div>
+          </div>
+          <div class="hero-pet">
+            <div class="pet-orb">
+              <div class="emoji" id="homePetEmoji">🥚</div>
+              <div class="label" id="homePetName">첫 업적을 달성해 펫을 만나세요</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title"><div><h3>오늘의 모험 기록</h3><p>브라우저에 자동 저장됩니다.</p></div></div>
+        <div class="grid cols-4" id="homeStats"></div>
+
+        <div class="section-title"><div><h3>빠른 시작</h3><p>자주 쓰는 설정으로 바로 시작합니다.</p></div></div>
+        <div class="grid cols-3">
+          <div class="card">
+            <h3>🎯 10문제 집중</h3><p class="muted">2~9단 전체 · 단답형 · 문제당 제한 없음</p>
+            <button class="btn primary full" onclick="quickStart('ten')">시작</button>
+          </div>
+          <div class="card">
+            <h3>⏱️ 1분 번개</h3><p class="muted">2~9단 전체 · 혼합 문제 · 전체 1분</p>
+            <button class="btn cyan full" onclick="quickStart('minute')">시작</button>
+          </div>
+          <div class="card">
+            <h3>🧠 오답 복습</h3><p class="muted">틀린 문제만 골라 적응형으로 다시 출제</p>
+            <button class="btn purple full" id="quickWrongBtn" onclick="startWrongReview()">복습 시작</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="screen-setup" class="screen">
+        <div class="setup-wrap">
+          <div class="section-title">
+            <div><h3>⚔️ 훈련 설정</h3><p>원하는 방식만 골라 나만의 퀘스트를 시작하세요.</p></div>
+            <button class="btn dark" onclick="showScreen('home')">← 돌아가기</button>
+          </div>
+
+          <div class="card setup-section">
+            <h3>1. 연습할 단</h3>
+            <div class="option-row" style="margin-bottom:10px">
+              <button class="btn cyan" onclick="selectAllDans(true)">2~9단 전체</button>
+              <button class="btn dark" onclick="selectAllDans(false)">전체 해제</button>
+            </div>
+            <div class="dan-grid" id="danGrid"></div>
+          </div>
+
+          <div class="card setup-section">
+            <h3>2. 문제 방식 (여러 개 선택 가능)</h3>
+            <div class="option-row">
+              <label class="pick"><input type="checkbox" name="mode" value="input" checked>⌨️ 단답형</label>
+              <label class="pick"><input type="checkbox" name="mode" value="choice">🔘 객관식</label>
+              <label class="pick"><input type="checkbox" name="mode" value="ox">⭕ OX</label>
+              <label class="pick"><input type="checkbox" name="mode" value="blank">🧩 빈칸</label>
+              <label class="pick"><input type="checkbox" name="mode" value="sequence">📜 순서대로</label>
+            </div>
+          </div>
+
+          <div class="card setup-section">
+            <h3>3. 한 판의 길이</h3>
+            <div class="option-row">
+              <label class="pick"><input type="radio" name="sessionType" value="count" checked>문제 수</label>
+              <label class="pick"><input type="radio" name="sessionType" value="time">시간 제한</label>
+              <label class="pick"><input type="radio" name="sessionType" value="both">문제 수 + 시간</label>
+              <label class="pick"><input type="radio" name="sessionType" value="endless">무한 도전</label>
+            </div>
+            <div class="grid cols-2" style="margin-top:14px">
+              <div>
+                <div class="muted" style="margin-bottom:7px">문제 수</div>
+                <div class="option-row">
+                  <label class="pick"><input type="radio" name="questionCount" value="10" checked>10문제</label>
+                  <label class="pick"><input type="radio" name="questionCount" value="20">20문제</label>
+                  <label class="pick"><input type="radio" name="questionCount" value="30">30문제</label>
+                </div>
+              </div>
+              <div>
+                <div class="muted" style="margin-bottom:7px">전체 시간</div>
+                <div class="option-row">
+                  <label class="pick"><input type="radio" name="totalTime" value="60" checked>1분</label>
+                  <label class="pick"><input type="radio" name="totalTime" value="120">2분</label>
+                  <label class="pick"><input type="radio" name="totalTime" value="180">3분</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card setup-section">
+            <h3>4. 오답 처리와 난이도</h3>
+            <div class="grid cols-2">
+              <div>
+                <div class="muted" style="margin-bottom:7px">틀렸을 때</div>
+                <div class="option-row">
+                  <label class="pick"><input type="radio" name="retryPolicy" value="next" checked>정답 확인 후 다음</label>
+                  <label class="pick"><input type="radio" name="retryPolicy" value="retry">맞을 때까지</label>
+                </div>
+              </div>
+              <div>
+                <div class="muted" style="margin-bottom:7px">하트</div>
+                <div class="option-row">
+                  <label class="pick"><input type="radio" name="heartCount" value="3" checked>❤️ 3개</label>
+                  <label class="pick"><input type="radio" name="heartCount" value="5">❤️ 5개</label>
+                  <label class="pick"><input type="radio" name="heartCount" value="999">무제한</label>
+                </div>
+              </div>
+            </div>
+            <div class="grid cols-2" style="margin-top:14px">
+              <div>
+                <div class="muted" style="margin-bottom:7px">일반 모드 문제당 제한</div>
+                <div class="option-row">
+                  <label class="pick"><input type="radio" name="perQuestionTime" value="0" checked>없음</label>
+                  <label class="pick"><input type="radio" name="perQuestionTime" value="5">5초</label>
+                  <label class="pick"><input type="radio" name="perQuestionTime" value="10">10초</label>
+                  <label class="pick"><input type="radio" name="perQuestionTime" value="15">15초</label>
+                </div>
+              </div>
+              <div>
+                <div class="muted" style="margin-bottom:7px">적응형 출제</div>
+                <label class="pick"><input type="checkbox" id="adaptiveCheck" checked>자주 틀린 문제를 더 자주 출제</label>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn primary big full" onclick="startConfiguredGame()">⚔️ 퀘스트 시작</button>
+        </div>
+      </section>
+
+      <section id="screen-game" class="screen">
+        <div class="game-shell">
+          <div class="game-hud">
+            <div class="hud-item"><b id="hudProgress">0/10</b><span>진행</span></div>
+            <div class="hud-item"><b id="hudCorrect">0</b><span>정답</span></div>
+            <div class="hud-item"><b id="hudStreak">0</b><span>연속</span></div>
+            <div class="hud-item"><b id="hudHearts">❤️❤️❤️</b><span>하트</span></div>
+            <div class="hud-item"><b id="hudTime">--:--</b><span>시간</span></div>
+          </div>
+          <div class="timer-bar"><div id="questionTimerFill"></div></div>
+
+          <div class="battle-area" id="battleArea">
+            <div class="battle-top">
+              <div class="boss-box hidden" id="bossBox">
+                <div class="boss-emoji" id="bossEmoji">👾</div>
+                <div>
+                  <div class="boss-name" id="bossName">훈련용 몬스터</div>
+                  <div class="hp-bar"><div class="hp-fill" id="bossHpFill"></div></div>
+                </div>
+              </div>
+              <div id="sessionTitle" class="gold" style="font-weight:1000">일반 훈련</div>
+              <button class="btn dark" onclick="confirmQuitGame()">종료</button>
+            </div>
+
+            <div class="question-card">
+              <span class="mode-badge" id="modeBadge">단답형</span>
+              <div class="question" id="questionText">7 × 8 = ?</div>
+              <div class="answer-zone" id="answerZone"></div>
+              <div class="feedback" id="feedback"></div>
+              <div class="game-actions" id="gameActions"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="screen-adventure" class="screen">
+        <div class="section-title">
+          <div><h3>🗺️ 구구단 왕국 모험</h3><p>각 지역의 보스를 쓰러뜨리면 다음 길이 열립니다.</p></div>
+          <button class="btn primary" onclick="openSetup()">자유 훈련</button>
+        </div>
+        <div class="map-path" id="mapPath"></div>
+        <div id="hiddenBossArea" style="margin-top:14px"></div>
+      </section>
+
+      <section id="screen-pets" class="screen">
+        <div class="section-title"><div><h3>🐾 펫 컬렉션</h3><p>업적을 달성하면 새로운 펫이 동료가 됩니다.</p></div></div>
+        <div class="card" style="margin-bottom:16px">
+          <h3 style="margin-top:0">보유 먹이</h3>
+          <div class="food-bar" id="foodBar"></div>
+          <p class="muted" style="margin-bottom:0">정답을 맞히면 일정 확률로 먹이를 얻습니다. 펫에게 먹이면 친밀도가 올라갑니다.</p>
+        </div>
+        <div class="pet-grid" id="petGrid"></div>
+      </section>
+
+      <section id="screen-achievements" class="screen">
+        <div class="section-title"><div><h3>🏆 업적</h3><p>달성 즉시 보상 펫이 해금됩니다.</p></div><div id="achievementSummary" class="mini-chip"></div></div>
+        <div class="achievement-grid" id="achievementGrid"></div>
+      </section>
+
+      <section id="screen-wrongbook" class="screen">
+        <div class="section-title">
+          <div><h3>📖 오답노트</h3><p>틀린 횟수가 많은 문제부터 복습하세요.</p></div>
+          <button class="btn purple" onclick="startWrongReview()">오답만 복습</button>
+        </div>
+        <div id="wrongBookContent"></div>
+      </section>
+
+      <section id="screen-stats" class="screen">
+        <div class="section-title"><div><h3>📊 학습 통계</h3><p>누적 기록과 단별 정확도를 확인합니다.</p></div></div>
+        <div class="grid cols-4" id="statsCards"></div>
+        <div class="grid cols-2" style="margin-top:16px">
+          <div class="card"><h3 style="margin-top:0">단별 정확도</h3><div id="danAccuracyBars"></div></div>
+          <div class="card"><h3 style="margin-top:0">최근 기록</h3><div id="recentSessions"></div></div>
+        </div>
+      </section>
+
+      <section id="screen-settings" class="screen">
+        <div class="section-title"><div><h3>⚙️ 설정 및 데이터</h3><p>효과와 저장 데이터를 관리합니다.</p></div></div>
+        <div class="grid cols-2">
+          <div class="card">
+            <div class="setting-row">
+              <div><b>효과음</b><div class="muted">정답·오답·보상 소리</div></div>
+              <label class="switch"><input id="soundToggle" type="checkbox"><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><b>애니메이션</b><div class="muted">폭죽과 화면 반응 효과</div></div>
+              <label class="switch"><input id="effectsToggle" type="checkbox"><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><b>전체 화면</b><div class="muted">수업용 큰 화면으로 사용</div></div>
+              <button class="btn dark" onclick="toggleFullscreen()">전환</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3 style="margin-top:0">데이터 관리</h3>
+            <div class="option-row">
+              <button class="btn cyan" onclick="exportData()">⬇️ 백업</button>
+              <button class="btn dark" onclick="document.getElementById('importFile').click()">⬆️ 불러오기</button>
+              <input id="importFile" type="file" accept="application/json" hidden>
+              <button class="btn red" onclick="resetAllData()">🗑️ 전체 초기화</button>
+            </div>
+            <p class="muted">기록은 이 브라우저의 로컬 저장소에 자동 저장됩니다. 다른 PC로 옮기려면 백업 파일을 사용하세요.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" id="modalContent"></div>
+</div>
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const STORAGE_KEY = 'gugudanQuestRPG_v1';
+  let volatileStorage = null;
+  function storageGet() {
+    try { return localStorage.getItem(STORAGE_KEY); }
+    catch (e) { return volatileStorage; }
+  }
+  function storageSet(value) {
+    volatileStorage = value;
+    try { localStorage.setItem(STORAGE_KEY, value); } catch (e) {}
+  }
+  function storageRemove() {
+    volatileStorage = null;
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  }
+  const FOOD_TYPES = {
+    apple: { emoji: '🍎', name: '사과', point: 2 },
+    carrot: { emoji: '🥕', name: '당근', point: 2 },
+    meat: { emoji: '🍖', name: '고기', point: 4 },
+    fish: { emoji: '🐟', name: '생선', point: 4 },
+    cake: { emoji: '🍰', name: '케이크', point: 7 }
+  };
+
+  const PETS = [
+    { id:'puppy', emoji:'🐶', name:'용감한 강아지', rarity:'common', rarityName:'일반', unlock:'first_correct' },
+    { id:'cat', emoji:'🐱', name:'별빛 고양이', rarity:'common', rarityName:'일반', unlock:'correct_20' },
+    { id:'rabbit', emoji:'🐰', name:'번개 토끼', rarity:'rare', rarityName:'희귀', unlock:'streak_10' },
+    { id:'fox', emoji:'🦊', name:'지혜의 여우', rarity:'rare', rarityName:'희귀', unlock:'correct_100' },
+    { id:'panda', emoji:'🐼', name:'대나무 판다', rarity:'rare', rarityName:'희귀', unlock:'boss_1' },
+    { id:'penguin', emoji:'🐧', name:'얼음 펭귄', rarity:'epic', rarityName:'영웅', unlock:'boss_3' },
+    { id:'dino', emoji:'🦖', name:'꼬마 공룡', rarity:'epic', rarityName:'영웅', unlock:'dan_7_master' },
+    { id:'owl', emoji:'🦉', name:'수학자 부엉이', rarity:'epic', rarityName:'영웅', unlock:'wrong_review_20' },
+    { id:'lion', emoji:'🦁', name:'황금 사자', rarity:'legendary', rarityName:'전설', unlock:'boss_6' },
+    { id:'dragon', emoji:'🐉', name:'구구단 드래곤', rarity:'legendary', rarityName:'전설', unlock:'all_master' },
+    { id:'unicorn', emoji:'🦄', name:'무지개 유니콘', rarity:'mythic', rarityName:'신화', unlock:'streak_50' },
+    { id:'phoenix', emoji:'🔥', name:'불사조', rarity:'mythic', rarityName:'신화', unlock:'hidden_boss' }
+  ];
+
+  const REGIONS = [
+    { id:1, emoji:'🌱', name:'새싹 초원', desc:'2단과 3단을 연습하는 첫 번째 지역', dans:[2,3], bossHp:6 },
+    { id:2, emoji:'🌲', name:'속삭임 숲', desc:'4단의 규칙을 찾아 숲을 통과하세요.', dans:[4], bossHp:7 },
+    { id:3, emoji:'🪨', name:'메아리 동굴', desc:'5단을 이용해 동굴의 문을 여세요.', dans:[5], bossHp:8 },
+    { id:4, emoji:'❄️', name:'눈보라 설산', desc:'6단의 힘으로 얼음 보스를 물리치세요.', dans:[6], bossHp:9 },
+    { id:5, emoji:'🌋', name:'용암 화산', desc:'7단과 8단의 강력한 연속 공격!', dans:[7,8], bossHp:10 },
+    { id:6, emoji:'🏰', name:'구구단 마왕성', desc:'9단과 모든 단이 섞인 최종 결전입니다.', dans:[2,3,4,5,6,7,8,9], bossHp:12 }
+  ];
+
+  const BOSSES = [
+    ['👾','말랑 슬라임'], ['🤖','고장 난 로봇'], ['👻','깜짝 유령'], ['🦖','쿵쾅 공룡'],
+    ['👽','우주 침입자'], ['🦑','심해 괴수'], ['🐲','불꽃 용'], ['🧟','졸린 좀비'],
+    ['🦂','사막 전갈'], ['🦇','어둠 박쥐'], ['🧌','동굴 트롤'], ['👹','붉은 도깨비']
+  ];
+
+  const ACHIEVEMENTS = [
+    { id:'first_correct', icon:'🌟', title:'첫 번째 승리', desc:'정답 1개 맞히기', target:1, reward:'puppy', progress:d=>d.totalCorrect },
+    { id:'correct_20', icon:'🐾', title:'기초 모험가', desc:'누적 정답 20개', target:20, reward:'cat', progress:d=>d.totalCorrect },
+    { id:'correct_100', icon:'💯', title:'백발백중', desc:'누적 정답 100개', target:100, reward:'fox', progress:d=>d.totalCorrect },
+    { id:'correct_500', icon:'⚔️', title:'숙련된 전사', desc:'누적 정답 500개', target:500, progress:d=>d.totalCorrect },
+    { id:'correct_1000', icon:'👑', title:'구구단 왕', desc:'누적 정답 1000개', target:1000, progress:d=>d.totalCorrect },
+    { id:'streak_10', icon:'⚡', title:'번개 연속기', desc:'10문제 연속 정답', target:10, reward:'rabbit', progress:d=>d.bestStreak },
+    { id:'streak_20', icon:'🌪️', title:'폭풍 연속기', desc:'20문제 연속 정답', target:20, progress:d=>d.bestStreak },
+    { id:'streak_50', icon:'🌈', title:'기적의 집중력', desc:'50문제 연속 정답', target:50, reward:'unicorn', progress:d=>d.bestStreak },
+    { id:'no_miss_10', icon:'🎯', title:'완벽한 10문제', desc:'10문제 이상 한 판을 실수 없이 완료', target:1, progress:d=>d.flags.noMiss10?1:0 },
+    { id:'speed_20', icon:'⏱️', title:'시간의 지배자', desc:'1분 동안 20문제 이상 정답', target:1, progress:d=>d.flags.speed20?1:0 },
+    { id:'wrong_review_20', icon:'📖', title:'오답 정복자', desc:'오답 복습에서 20문제 정답', target:20, reward:'owl', progress:d=>d.reviewCorrect },
+    ...[2,3,4,5,6,7,8,9].map(n => ({
+      id:`dan_${n}_master`, icon:`${n}️⃣`, title:`${n}단 마스터`, desc:`${n}단 각 문제를 2번 이상 맞히고 정확도 80% 달성`, target:1,
+      reward:n===7?'dino':null, progress:d=>isDanMastered(d,n)?1:0
+    })),
+    { id:'all_master', icon:'🐉', title:'구구단 완전 정복', desc:'2단부터 9단까지 모두 마스터', target:8, reward:'dragon', progress:d=>[2,3,4,5,6,7,8,9].filter(n=>isDanMastered(d,n)).length },
+    ...[1,2,3,4,5,6].map(n => ({
+      id:`boss_${n}`, icon:'👾', title:`지역 보스 ${n} 격파`, desc:`${REGIONS[n-1].name} 보스 처치`, target:1,
+      reward:n===1?'panda':n===3?'penguin':n===6?'lion':null, progress:d=>d.bossesDefeated[n]?1:0
+    })),
+    { id:'hidden_boss', icon:'🔥', title:'숨겨진 재앙 봉인', desc:'히든 보스를 격파', target:1, reward:'phoenix', progress:d=>d.hiddenBossDefeated?1:0 },
+    { id:'food_30', icon:'🍎', title:'풍성한 식량창고', desc:'먹이를 누적 30개 획득', target:30, progress:d=>d.totalFoodEarned },
+    { id:'pet_friend', icon:'💖', title:'다정한 친구', desc:'한 펫의 친밀도 50 달성', target:50, progress:d=>Math.max(0,...Object.values(d.petAffinity||{})) },
+    { id:'play_10', icon:'📜', title:'꾸준한 모험가', desc:'게임 10판 완료', target:10, progress:d=>d.sessions.length },
+    { id:'answer_2000', icon:'🏰', title:'전설의 교관', desc:'누적 2000문제 풀이', target:2000, progress:d=>d.totalAnswered }
+  ];
+
+  const defaultData = () => ({
+    totalAnswered: 0,
+    totalCorrect: 0,
+    bestStreak: 0,
+    reviewCorrect: 0,
+    totalFoodEarned: 0,
+    playSeconds: 0,
+    perFact: {},
+    food: { apple:0, carrot:0, meat:0, fish:0, cake:0 },
+    unlockedPets: [],
+    activePet: null,
+    petAffinity: {},
+    achievements: {},
+    bossesDefeated: {},
+    mapUnlocked: 1,
+    hiddenBossUnlocked: false,
+    hiddenBossDefeated: false,
+    sessions: [],
+    flags: { noMiss10:false, speed20:false },
+    settings: { sound:true, effects:true }
+  });
+
+  let data = loadData();
+  let selectedDans = new Set([2,3,4,5,6,7,8,9]);
+  let game = null;
+  let globalPlayTimer = null;
+
+  function loadData() {
+    try {
+      const raw = storageGet();
+      if (!raw) return defaultData();
+      const parsed = JSON.parse(raw);
+      const base = defaultData();
+      return {
+        ...base, ...parsed,
+        food: { ...base.food, ...(parsed.food||{}) },
+        settings: { ...base.settings, ...(parsed.settings||{}) },
+        flags: { ...base.flags, ...(parsed.flags||{}) },
+        perFact: parsed.perFact || {},
+        petAffinity: parsed.petAffinity || {},
+        achievements: parsed.achievements || {},
+        bossesDefeated: parsed.bossesDefeated || {},
+        sessions: Array.isArray(parsed.sessions) ? parsed.sessions : [],
+        unlockedPets: Array.isArray(parsed.unlockedPets) ? parsed.unlockedPets : []
+      };
+    } catch (e) {
+      console.error(e);
+      return defaultData();
+    }
+  }
+
+  function saveData() {
+    storageSet(JSON.stringify(data));
+    refreshAll();
+  }
+
+  function fmtTime(sec) {
+    sec = Math.max(0, Math.floor(sec || 0));
+    const m = String(Math.floor(sec/60)).padStart(2,'0');
+    const s = String(sec%60).padStart(2,'0');
+    return `${m}:${s}`;
+  }
+
+  function accuracy(correct, total) { return total ? Math.round(correct/total*100) : 0; }
+  function factKey(a,b) { return `${a}x${b}`; }
+  function factStats(a,b) { return data.perFact[factKey(a,b)] || { attempts:0, correct:0, wrong:0 }; }
+
+  function isDanMastered(d, dan) {
+    let attempts = 0, correct = 0;
+    for (let b=1;b<=9;b++) {
+      const s = d.perFact[factKey(dan,b)] || {attempts:0,correct:0};
+      if (s.correct < 2) return false;
+      attempts += s.attempts;
+      correct += s.correct;
+    }
+    return attempts > 0 && correct/attempts >= .8;
+  }
+
+  function showScreen(name) {
+    if (name !== 'game' && game && !game.ended) return;
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    const target = document.getElementById(`screen-${name}`);
+    if (target) target.classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.screen===name));
+    if (name==='adventure') renderMap();
+    if (name==='pets') renderPets();
+    if (name==='achievements') renderAchievements();
+    if (name==='wrongbook') renderWrongBook();
+    if (name==='stats') renderStats();
+    if (name==='settings') syncSettings();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  window.showScreen = showScreen;
+
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => showScreen(btn.dataset.screen)));
+
+  function openSetup() { renderDanGrid(); showScreen('setup'); }
+  window.openSetup = openSetup;
+
+  function renderDanGrid() {
+    const el = document.getElementById('danGrid');
+    el.innerHTML = '';
+    for (let n=2;n<=9;n++) {
+      const b = document.createElement('button');
+      b.className = `dan-btn ${selectedDans.has(n)?'selected':''}`;
+      b.textContent = `${n}단`;
+      b.onclick = () => { selectedDans.has(n)?selectedDans.delete(n):selectedDans.add(n); renderDanGrid(); };
+      el.appendChild(b);
+    }
+  }
+
+  function selectAllDans(on) {
+    selectedDans = new Set(on ? [2,3,4,5,6,7,8,9] : []);
+    renderDanGrid();
+  }
+  window.selectAllDans = selectAllDans;
+
+  function getChecked(name) {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : null;
+  }
+
+  function getCheckedMany(name) {
+    return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(x=>x.value);
+  }
+
+  function startConfiguredGame() {
+    const modes = getCheckedMany('mode');
+    if (!selectedDans.size) return toast('설정 확인','연습할 단을 하나 이상 선택하세요.');
+    if (!modes.length) return toast('설정 확인','문제 방식을 하나 이상 선택하세요.');
+    const sessionType = getChecked('sessionType');
+    const totalTime = Number(getChecked('totalTime'));
+    const perQuestionTime = ['time','both'].includes(sessionType) ? 0 : Number(getChecked('perQuestionTime'));
+    startGame({
+      title:'자유 훈련',
+      dans:[...selectedDans], modes,
+      sessionType,
+      questionCount:Number(getChecked('questionCount')),
+      totalTime,
+      perQuestionTime,
+      retryPolicy:getChecked('retryPolicy'),
+      maxHearts:Number(getChecked('heartCount')),
+      adaptive:document.getElementById('adaptiveCheck').checked,
+      reviewOnly:false,
+      boss:null
+    });
+  }
+  window.startConfiguredGame = startConfiguredGame;
+
+  function quickStart(type) {
+    if (type==='ten') {
+      startGame({ title:'10문제 집중', dans:[2,3,4,5,6,7,8,9], modes:['input'], sessionType:'count', questionCount:10, totalTime:0, perQuestionTime:0, retryPolicy:'next', maxHearts:3, adaptive:true, reviewOnly:false, boss:null });
+    } else {
+      startGame({ title:'1분 번개', dans:[2,3,4,5,6,7,8,9], modes:['input','choice','ox','blank'], sessionType:'time', questionCount:9999, totalTime:60, perQuestionTime:0, retryPolicy:'next', maxHearts:999, adaptive:true, reviewOnly:false, boss:null });
+    }
+  }
+  window.quickStart = quickStart;
+
+  function startWrongReview() {
+    const wrongFacts = getWrongFacts();
+    if (!wrongFacts.length) return toast('오답 없음','아직 복습할 오답이 없습니다.');
+    startGame({ title:'오답 복습', dans:[2,3,4,5,6,7,8,9], modes:['input','choice','blank'], sessionType:'count', questionCount:Math.min(30, Math.max(10, wrongFacts.length)), totalTime:0, perQuestionTime:0, retryPolicy:'retry', maxHearts:5, adaptive:true, reviewOnly:true, boss:null });
+  }
+  window.startWrongReview = startWrongReview;
+
+
+  function startLastSessionWrongReview() {
+    if (!game?.wrongKeys?.length) return startWrongReview();
+    const facts=[...new Set(game.wrongKeys)].map(k=>{const [a,b]=k.split('x').map(Number);return {a,b};});
+    startGame({ title:'방금 오답 복습', dans:[2,3,4,5,6,7,8,9], modes:['input','choice','blank'], sessionType:'count', questionCount:Math.max(5,facts.length*2), totalTime:0, perQuestionTime:0, retryPolicy:'retry', maxHearts:5, adaptive:true, reviewOnly:true, customFacts:facts, boss:null });
+  }
+  window.startLastSessionWrongReview=startLastSessionWrongReview;
+
+  function startAdventure(regionId) {
+    const region = REGIONS.find(r=>r.id===regionId);
+    if (!region || regionId > data.mapUnlocked) return;
+    const boss = randomBoss(regionId===6);
+    startGame({
+      title:`${region.name} 보스전`, dans:region.dans, modes:['input','choice','ox','blank'],
+      sessionType:'boss', questionCount:999, totalTime:0, perQuestionTime:12,
+      retryPolicy:'next', maxHearts:5, adaptive:true, reviewOnly:false,
+      boss:{ regionId, emoji:boss[0], name:boss[1], hp:region.bossHp, maxHp:region.bossHp, hidden:false }
+    });
+  }
+  window.startAdventure = startAdventure;
+
+  function startHiddenBoss() {
+    if (!data.hiddenBossUnlocked || data.hiddenBossDefeated) return;
+    startGame({
+      title:'히든 보스전', dans:[2,3,4,5,6,7,8,9], modes:['input','choice','ox','blank'],
+      sessionType:'boss', questionCount:999, totalTime:0, perQuestionTime:8,
+      retryPolicy:'next', maxHearts:5, adaptive:true, reviewOnly:false,
+      boss:{ regionId:0, emoji:'☄️', name:'혼돈의 구구단 제왕', hp:15, maxHp:15, hidden:true }
+    });
+  }
+  window.startHiddenBoss = startHiddenBoss;
+
+  function randomBoss(final=false) {
+    if (final) return Math.random()<.5 ? ['🐲','마왕 드래곤'] : ['👹','구구단 마왕'];
+    return BOSSES[Math.floor(Math.random()*BOSSES.length)];
+  }
+
+  function startGame(config) {
+    clearGameTimers();
+    const now = Date.now();
+    game = {
+      ...config,
+      startedAt: now,
+      ended:false,
+      completed:0,
+      correct:0,
+      wrong:0,
+      streak:0,
+      bestSessionStreak:0,
+      hearts:config.maxHearts,
+      current:null,
+      currentResolved:false,
+      retryAttempts:0,
+      remaining:config.totalTime || 0,
+      questionRemaining:config.perQuestionTime || 0,
+      questionTimer:null,
+      totalTimer:null,
+      sequenceIndex:0,
+      sequencePool:makeSequencePool(config.dans),
+      seenKeys:[],
+      wrongKeys:[],
+      foodEarned:0
+    };
+    document.getElementById('sessionTitle').textContent = config.title;
+    document.getElementById('bossBox').classList.toggle('hidden', !config.boss);
+    if (config.boss) {
+      document.getElementById('bossEmoji').textContent = config.boss.emoji;
+      document.getElementById('bossName').textContent = config.boss.name;
+      updateBossHp();
+    }
+    showScreen('game');
+    renderHud();
+    if (['time','both'].includes(config.sessionType)) startTotalTimer();
+    nextQuestion();
+  }
+
+  function makeSequencePool(dans) {
+    const arr=[];
+    [...dans].sort((a,b)=>a-b).forEach(a=>{ for(let b=1;b<=9;b++) arr.push({a,b}); });
+    return arr;
+  }
+
+  function getWrongFacts() {
+    const list=[];
+    for (let a=2;a<=9;a++) for(let b=1;b<=9;b++) {
+      const s=factStats(a,b);
+      if (s.wrong>0) list.push({a,b,weight:1+s.wrong*3});
+    }
+    return list;
+  }
+
+  function weightedPick(items, weightFn) {
+    const weights=items.map(weightFn);
+    const total=weights.reduce((a,b)=>a+b,0);
+    let r=Math.random()*total;
+    for(let i=0;i<items.length;i++) { r-=weights[i]; if(r<=0) return items[i]; }
+    return items[items.length-1];
+  }
+
+  function chooseFact(mode) {
+    if (game.customFacts?.length) {
+      return weightedPick(game.customFacts, ({a,b})=>1 + factStats(a,b).wrong*2);
+    }
+    if (game.reviewOnly) {
+      const items=getWrongFacts();
+      return weightedPick(items, x=>x.weight);
+    }
+    if (mode==='sequence') {
+      const item=game.sequencePool[game.sequenceIndex % game.sequencePool.length];
+      game.sequenceIndex++;
+      return item;
+    }
+    const pool=[];
+    game.dans.forEach(a=>{for(let b=1;b<=9;b++) pool.push({a,b});});
+    if (!game.adaptive) return pool[Math.floor(Math.random()*pool.length)];
+    return weightedPick(pool, ({a,b})=>{
+      const s=factStats(a,b);
+      return 1.2 + s.wrong*2.8 + (s.attempts===0?1.4:0) + Math.max(0, 1-(s.correct/(s.attempts||1)));
+    });
+  }
+
+  function chooseMode() {
+    const modes=game.modes;
+    return modes[Math.floor(Math.random()*modes.length)] || 'input';
+  }
+
+  function makeQuestion() {
+    const mode=chooseMode();
+    const {a,b}=chooseFact(mode);
+    const product=a*b;
+    const q={a,b,product,mode,key:factKey(a,b)};
+    if (mode==='input' || mode==='sequence') {
+      q.prompt=`${a} × ${b} = ?`; q.correct=product;
+    } else if (mode==='choice') {
+      q.prompt=`${a} × ${b} = ?`; q.correct=product;
+      const set=new Set([product]);
+      while(set.size<4) {
+        const delta=[-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,1,2,3,4,5,6,7,8,9,10][Math.floor(Math.random()*20)];
+        const v=Math.max(1, product+delta);
+        set.add(v);
+      }
+      q.choices=[...set].sort(()=>Math.random()-.5);
+    } else if (mode==='ox') {
+      const trueStmt=Math.random()<.52;
+      let shown=product;
+      if (!trueStmt) {
+        do {
+          shown=Math.max(1, product + (Math.floor(Math.random()*11)-5));
+        } while(shown===product);
+      }
+      q.prompt=`${a} × ${b} = ${shown}`; q.correct=trueStmt;
+    } else if (mode==='blank') {
+      q.prompt=`${a} × □ = ${product}`; q.correct=b;
+    }
+    return q;
+  }
+
+  function nextQuestion() {
+    if (!game || game.ended) return;
+    if (shouldEndBeforeNext()) return endGame('complete');
+    game.current=makeQuestion();
+    game.currentResolved=false;
+    game.retryAttempts=0;
+    game.seenKeys.push(game.current.key);
+    document.getElementById('feedback').textContent='';
+    document.getElementById('feedback').className='feedback';
+    document.getElementById('gameActions').innerHTML='';
+    document.getElementById('questionText').textContent=game.current.prompt;
+    document.getElementById('modeBadge').textContent=modeName(game.current.mode);
+    renderAnswerZone();
+    startQuestionTimer();
+    renderHud();
+  }
+
+  function modeName(mode) {
+    return ({input:'⌨️ 단답형',choice:'🔘 객관식',ox:'⭕ OX 판단',blank:'🧩 빈칸 찾기',sequence:'📜 순서대로'})[mode] || mode;
+  }
+
+  function renderAnswerZone() {
+    const zone=document.getElementById('answerZone');
+    const q=game.current;
+    if (q.mode==='choice') {
+      zone.innerHTML=`<div class="choice-grid">${q.choices.map(v=>`<button class="choice-btn" data-val="${v}">${v}</button>`).join('')}</div>`;
+      zone.querySelectorAll('button').forEach(b=>b.onclick=()=>submitAnswer(Number(b.dataset.val)));
+    } else if (q.mode==='ox') {
+      zone.innerHTML=`<div class="choice-grid"><button class="choice-btn" data-val="true">⭕ 맞아요</button><button class="choice-btn" data-val="false">❌ 틀려요</button></div>`;
+      zone.querySelectorAll('button').forEach(b=>b.onclick=()=>submitAnswer(b.dataset.val==='true'));
+    } else {
+      zone.innerHTML=`<input class="answer-input" id="answerInput" type="number" inputmode="numeric" autocomplete="off" aria-label="정답 입력"><div style="margin-top:12px"><button class="btn primary big" id="submitBtn">정답 확인</button></div>`;
+      const input=document.getElementById('answerInput');
+      document.getElementById('submitBtn').onclick=()=>submitAnswer(Number(input.value));
+      input.addEventListener('keydown',e=>{if(e.key==='Enter') submitAnswer(Number(input.value));});
+      setTimeout(()=>input.focus(),50);
+    }
+  }
+
+  function submitAnswer(value, timedOut=false) {
+    if (!game || game.ended || game.currentResolved) return;
+    const q=game.current;
+    const isCorrect = value===q.correct;
+    recordAttempt(q, isCorrect);
+    if (isCorrect) handleCorrect();
+    else handleWrong(timedOut);
+  }
+
+  function recordAttempt(q, correct) {
+    const key=q.key;
+    const s=data.perFact[key] || {attempts:0,correct:0,wrong:0};
+    s.attempts++;
+    correct ? s.correct++ : s.wrong++;
+    data.perFact[key]=s;
+    data.totalAnswered++;
+    if (correct) data.totalCorrect++;
+    if (game.reviewOnly && correct) data.reviewCorrect++;
+  }
+
+  function handleCorrect() {
+    stopQuestionTimer();
+    game.currentResolved=true;
+    game.correct++;
+    game.streak++;
+    game.bestSessionStreak=Math.max(game.bestSessionStreak,game.streak);
+    data.bestStreak=Math.max(data.bestStreak,game.streak);
+    if (data.bestStreak>=20) data.hiddenBossUnlocked=true;
+    if (game.boss) {
+      game.boss.hp--;
+      updateBossHp();
+      animateBossHit();
+    }
+    maybeEarnFood();
+    playSound('ok');
+    showFeedback('정답! 멋진 공격이었어요.','ok');
+    if (data.settings.effects) confettiBurst();
+    evaluateAchievements();
+    saveDataLight();
+    if (game.boss && game.boss.hp<=0) return setTimeout(()=>endGame('bossWin'),550);
+    setTimeout(()=>advanceResolved(),520);
+  }
+
+  function handleWrong(timedOut) {
+    stopQuestionTimer();
+    game.wrong++;
+    game.streak=0;
+    if (game.maxHearts<999) game.hearts=Math.max(0,game.hearts-1);
+    if (!game.wrongKeys.includes(game.current.key)) game.wrongKeys.push(game.current.key);
+    playSound('bad');
+    document.getElementById('battleArea').classList.add('shake');
+    setTimeout(()=>document.getElementById('battleArea').classList.remove('shake'),320);
+    showFeedback(timedOut ? `시간 초과! 정답은 ${displayCorrect()}입니다.` : `아쉬워요. 정답은 ${displayCorrect()}입니다.`,'bad');
+    if (game.hearts===0) {
+      game.currentResolved=true;
+      return setTimeout(()=>endGame('hearts'),750);
+    }
+    if (game.retryPolicy==='retry' && !timedOut) {
+      game.retryAttempts++;
+      document.getElementById('gameActions').innerHTML='<button class="btn cyan" id="retryBtn">다시 풀기</button>';
+      document.getElementById('retryBtn').onclick=()=>{
+        document.getElementById('feedback').textContent='';
+        document.getElementById('gameActions').innerHTML='';
+        game.currentResolved=false;
+        renderAnswerZone();
+        startQuestionTimer();
+      };
+      game.currentResolved=true;
+    } else {
+      game.currentResolved=true;
+      setTimeout(()=>advanceResolved(),800);
+    }
+    evaluateAchievements();
+    saveDataLight();
+    renderHud();
+  }
+
+  function displayCorrect() {
+    return game.current.mode==='ox' ? (game.current.correct?'⭕ 맞아요':'❌ 틀려요') : game.current.correct;
+  }
+
+  function advanceResolved() {
+    if (!game || game.ended) return;
+    game.completed++;
+    nextQuestion();
+  }
+
+  function shouldEndBeforeNext() {
+    if (game.boss) return false;
+    if (game.sessionType==='count' || game.sessionType==='both') return game.completed>=game.questionCount;
+    return false;
+  }
+
+  function showFeedback(text,type) {
+    const el=document.getElementById('feedback');
+    el.textContent=text;
+    el.className=`feedback ${type}`;
+    renderHud();
+  }
+
+  function renderHud() {
+    if (!game) return;
+    let progress='∞';
+    if (game.boss) progress=`${game.correct} 공격`;
+    else if (game.sessionType==='count'||game.sessionType==='both') progress=`${Math.min(game.completed+1,game.questionCount)}/${game.questionCount}`;
+    else progress=`${game.correct}개`;
+    document.getElementById('hudProgress').textContent=progress;
+    document.getElementById('hudCorrect').textContent=game.correct;
+    document.getElementById('hudStreak').textContent=game.streak;
+    document.getElementById('hudHearts').textContent=game.maxHearts>=999?'∞':('❤️'.repeat(game.hearts)||'💔');
+    document.getElementById('hudTime').textContent=['time','both'].includes(game.sessionType)?fmtTime(game.remaining):fmtTime((Date.now()-game.startedAt)/1000);
+  }
+
+  function updateBossHp() {
+    if (!game?.boss) return;
+    const pct=Math.max(0,game.boss.hp/game.boss.maxHp*100);
+    document.getElementById('bossHpFill').style.width=`${pct}%`;
+  }
+
+  function animateBossHit() {
+    const el=document.getElementById('bossEmoji');
+    el.classList.add('shake');
+    setTimeout(()=>el.classList.remove('shake'),320);
+  }
+
+  function startTotalTimer() {
+    game.totalTimer=setInterval(()=>{
+      if (!game || game.ended) return;
+      game.remaining--;
+      renderHud();
+      if (game.remaining<=0) endGame('time');
+    },1000);
+  }
+
+  function startQuestionTimer() {
+    stopQuestionTimer();
+    const limit=game.perQuestionTime;
+    const fill=document.getElementById('questionTimerFill');
+    if (!limit) { fill.style.width='100%'; fill.style.opacity='.22'; return; }
+    fill.style.opacity='1';
+    game.questionRemaining=limit;
+    fill.style.width='100%';
+    game.questionTimer=setInterval(()=>{
+      game.questionRemaining-=.1;
+      fill.style.width=`${Math.max(0,game.questionRemaining/limit*100)}%`;
+      if (game.questionRemaining<=0) { stopQuestionTimer(); submitAnswer(null,true); }
+    },100);
+  }
+
+  function stopQuestionTimer() { if (game?.questionTimer) clearInterval(game.questionTimer); if(game) game.questionTimer=null; }
+  function clearGameTimers() {
+    if (game?.questionTimer) clearInterval(game.questionTimer);
+    if (game?.totalTimer) clearInterval(game.totalTimer);
+  }
+
+  function endGame(reason) {
+    if (!game || game.ended) return;
+    game.ended=true;
+    clearGameTimers();
+    const elapsed=Math.max(1,Math.round((Date.now()-game.startedAt)/1000));
+    data.playSeconds += elapsed;
+    const resolvedCount=game.correct+game.wrong;
+    const acc=accuracy(game.correct,resolvedCount);
+    if (game.wrong===0 && game.correct>=10) data.flags.noMiss10=true;
+    if (game.totalTime===60 && game.correct>=20) data.flags.speed20=true;
+
+    let title='훈련 완료!';
+    let emoji='🎉';
+    let extra='';
+    if (reason==='hearts') { title='하트를 모두 사용했어요'; emoji='💔'; extra='오답노트에서 다시 도전하면 더 강해집니다.'; }
+    if (reason==='time') { title='시간 종료!'; emoji='⏰'; extra='빠르게 푼 만큼 기록에 반영되었습니다.'; }
+    if (reason==='bossWin') {
+      title='보스 격파!'; emoji='🏆';
+      if (game.boss.hidden) {
+        data.hiddenBossDefeated=true;
+        extra='숨겨진 구구단 제왕을 봉인했습니다!';
+      } else {
+        data.bossesDefeated[game.boss.regionId]=true;
+        data.mapUnlocked=Math.max(data.mapUnlocked, Math.min(6, game.boss.regionId+1));
+        extra=game.boss.regionId<6?'다음 지역으로 가는 길이 열렸습니다.':'구구단 왕국을 구했습니다!';
+      }
+    }
+
+    data.sessions.unshift({ date:new Date().toISOString(), title:game.title, correct:game.correct, wrong:game.wrong, accuracy:acc, seconds:elapsed });
+    data.sessions=data.sessions.slice(0,20);
+    evaluateAchievements();
+    saveData();
+
+    showModal(`
+      <div class="big-emoji">${emoji}</div>
+      <h3>${title}</h3>
+      <p>${extra}</p>
+      <div class="grid cols-3" style="margin:18px 0">
+        <div class="card"><div class="stat-value">${game.correct}</div><div class="stat-label">정답</div></div>
+        <div class="card"><div class="stat-value">${acc}%</div><div class="stat-label">정답률</div></div>
+        <div class="card"><div class="stat-value">${game.foodEarned}</div><div class="stat-label">먹이 획득</div></div>
+      </div>
+      <div class="option-row" style="justify-content:center">
+        <button class="btn primary" onclick="closeModal(); showScreen('home')">홈으로</button>
+        ${game.wrongKeys.length?'<button class="btn purple" onclick="closeModal(); startLastSessionWrongReview()">방금 오답 다시 풀기</button>':''}
+        <button class="btn cyan" onclick="closeModal(); showScreen('wrongbook')">오답노트</button>
+      </div>
+    `);
+  }
+
+  function confirmQuitGame() {
+    if (!game || game.ended) return showScreen('home');
+    showModal(`
+      <div class="big-emoji">🚪</div><h3>훈련을 종료할까요?</h3>
+      <p>현재 판의 진행 기록은 완료 기록에 포함되지 않습니다. 지금까지의 개별 정답과 오답은 이미 저장되었습니다.</p>
+      <div class="option-row" style="justify-content:center">
+        <button class="btn red" onclick="quitGameNow()">종료</button>
+        <button class="btn dark" onclick="closeModal()">계속하기</button>
+      </div>
+    `);
+  }
+  window.confirmQuitGame=confirmQuitGame;
+
+  function quitGameNow() { clearGameTimers(); if(game) game.ended=true; closeModal(); showScreen('home'); refreshAll(); }
+  window.quitGameNow=quitGameNow;
+
+  function maybeEarnFood() {
+    if (Math.random()>.28) return;
+    const r=Math.random();
+    const type=r<.42?'apple':r<.72?'carrot':r<.84?'meat':r<.95?'fish':'cake';
+    data.food[type]++;
+    data.totalFoodEarned++;
+    game.foodEarned++;
+    toast('먹이 획득!',`${FOOD_TYPES[type].emoji} ${FOOD_TYPES[type].name}을 얻었습니다.`);
+  }
+
+  function evaluateAchievements() {
+    ACHIEVEMENTS.forEach(a=>{
+      const current=Math.min(a.target,a.progress(data));
+      if (current>=a.target && !data.achievements[a.id]) {
+        data.achievements[a.id]={date:new Date().toISOString()};
+        if (a.reward && !data.unlockedPets.includes(a.reward)) data.unlockedPets.push(a.reward);
+        const pet=a.reward?PETS.find(p=>p.id===a.reward):null;
+        toast('업적 달성!',`${a.icon} ${a.title}${pet?` · ${pet.emoji} ${pet.name} 해금`:''}`);
+        playSound('reward');
+      }
+    });
+  }
+
+  function renderHome() {
+    const active=PETS.find(p=>p.id===data.activePet);
+    document.getElementById('homePetEmoji').textContent=active?.emoji || '🥚';
+    document.getElementById('homePetName').textContent=active?.name || '첫 업적을 달성해 펫을 만나세요';
+    const acc=accuracy(data.totalCorrect,data.totalAnswered);
+    const items=[
+      ['🧮',data.totalAnswered.toLocaleString(),'총 풀이'],
+      ['✅',`${acc}%`,'누적 정답률'],
+      ['⚡',data.bestStreak,'최고 연속 정답'],
+      ['🏆',Object.keys(data.achievements).length,'달성 업적']
+    ];
+    document.getElementById('homeStats').innerHTML=items.map(x=>`<div class="card stat-card"><div class="stat-icon">${x[0]}</div><div><div class="stat-value">${x[1]}</div><div class="stat-label">${x[2]}</div></div></div>`).join('');
+    document.getElementById('quickWrongBtn').disabled=!getWrongFacts().length;
+  }
+
+  function renderTop() {
+    const active=PETS.find(p=>p.id===data.activePet);
+    document.getElementById('topPet').textContent=active?`${active.emoji} ${active.name}`:'🥚 모험의 알';
+    const foodCount=Object.values(data.food).reduce((a,b)=>a+b,0);
+    document.getElementById('topFood').textContent=`🍎 ${foodCount}`;
+    document.getElementById('topAccuracy').textContent=`정답률 ${accuracy(data.totalCorrect,data.totalAnswered)}%`;
+    document.getElementById('topStreak').textContent=`최고 ${data.bestStreak}연속`;
+  }
+
+  function renderMap() {
+    const el=document.getElementById('mapPath');
+    el.innerHTML=REGIONS.map(r=>{
+      const locked=r.id>data.mapUnlocked;
+      const done=!!data.bossesDefeated[r.id];
+      return `<div class="region-card ${locked?'locked':''}">
+        <div class="region-emoji">${locked?'🔒':r.emoji}</div>
+        <div><h4>${r.id}. ${r.name} ${done?'✅':''}</h4><p>${r.desc}<br><span class="gold">연습 범위: ${r.dans.map(n=>`${n}단`).join(', ')}</span></p></div>
+        <button class="btn ${done?'green':'primary'}" ${locked?'disabled':''} onclick="startAdventure(${r.id})">${done?'다시 도전':'보스 도전'}</button>
+      </div>`;
+    }).join('');
+    const hb=document.getElementById('hiddenBossArea');
+    if (data.hiddenBossUnlocked) {
+      hb.innerHTML=`<div class="region-card ${data.hiddenBossDefeated?'':' '}" style="border-color:rgba(244,63,94,.55)">
+        <div class="region-emoji">☄️</div><div><h4>히든 보스: 혼돈의 균열 ${data.hiddenBossDefeated?'✅':''}</h4><p>최고 연속 정답 20회를 달성해 발견한 비밀 지역입니다.</p></div>
+        <button class="btn red" ${data.hiddenBossDefeated?'disabled':''} onclick="startHiddenBoss()">${data.hiddenBossDefeated?'봉인 완료':'히든 보스 도전'}</button>
+      </div>`;
+    } else hb.innerHTML='';
+  }
+
+  function renderPets() {
+    document.getElementById('foodBar').innerHTML=Object.entries(FOOD_TYPES).map(([id,f])=>`<span class="food-chip">${f.emoji} ${f.name} × ${data.food[id]}</span>`).join('');
+    document.getElementById('petGrid').innerHTML=PETS.map(p=>{
+      const unlocked=data.unlockedPets.includes(p.id);
+      const affinity=data.petAffinity[p.id]||0;
+      const selected=data.activePet===p.id;
+      const ach=ACHIEVEMENTS.find(a=>a.id===p.unlock);
+      return `<div class="card pet-card ${unlocked?'':'locked'}">
+        <span class="rarity ${p.rarity}">${p.rarityName}</span>
+        <div class="pet-emoji">${unlocked?p.emoji:'❓'}</div>
+        <h3>${unlocked?p.name:'잠긴 펫'}</h3>
+        <p class="muted">${unlocked?`친밀도 ${affinity}`:`해금 조건: ${ach?.title||'비밀 업적'}`}</p>
+        <div class="affinity"><div style="width:${Math.min(100,affinity)}%"></div></div>
+        ${unlocked?`<div class="option-row" style="justify-content:center">
+          <button class="btn ${selected?'green':'dark'}" onclick="selectPet('${p.id}')">${selected?'동행 중':'동행하기'}</button>
+          <button class="btn purple" onclick="openFeedModal('${p.id}')">먹이 주기</button>
+        </div>`:''}
+      </div>`;
+    }).join('');
+  }
+
+  function selectPet(id) { if(!data.unlockedPets.includes(id)) return; data.activePet=id; saveData(); toast('동료 변경',`${PETS.find(p=>p.id===id).emoji} 함께 모험합니다.`); }
+  window.selectPet=selectPet;
+
+  function openFeedModal(id) {
+    const p=PETS.find(x=>x.id===id);
+    showModal(`<div class="big-emoji">${p.emoji}</div><h3>${p.name}에게 먹이 주기</h3><p>먹이의 종류에 따라 친밀도가 올라갑니다.</p>
+      <div class="option-row" style="justify-content:center">${Object.entries(FOOD_TYPES).map(([fid,f])=>`<button class="btn dark" ${data.food[fid]<=0?'disabled':''} onclick="feedPet('${id}','${fid}')">${f.emoji} ${f.name} (${data.food[fid]})</button>`).join('')}</div>
+      <div style="margin-top:16px"><button class="btn primary" onclick="closeModal()">닫기</button></div>`);
+  }
+  window.openFeedModal=openFeedModal;
+
+  function feedPet(pid,fid) {
+    if (data.food[fid]<=0) return;
+    data.food[fid]--;
+    data.petAffinity[pid]=(data.petAffinity[pid]||0)+FOOD_TYPES[fid].point;
+    evaluateAchievements();
+    saveData();
+    playSound('reward');
+    openFeedModal(pid);
+  }
+  window.feedPet=feedPet;
+
+  function renderAchievements() {
+    const done=Object.keys(data.achievements).length;
+    document.getElementById('achievementSummary').textContent=`${done} / ${ACHIEVEMENTS.length} 달성`;
+    document.getElementById('achievementGrid').innerHTML=ACHIEVEMENTS.map(a=>{
+      const current=Math.min(a.target,a.progress(data));
+      const pct=Math.round(current/a.target*100);
+      const completed=!!data.achievements[a.id];
+      const pet=a.reward?PETS.find(p=>p.id===a.reward):null;
+      return `<div class="card achievement-card ${completed?'done':''}">
+        <div class="achievement-head"><div class="achievement-icon">${completed?'✅':a.icon}</div><div><h4>${a.title}</h4><p>${a.desc}</p></div></div>
+        ${pet?`<p class="gold" style="margin:10px 0 0">보상: ${pet.emoji} ${pet.name}</p>`:''}
+        <div class="progress"><div style="width:${pct}%"></div></div>
+        <div class="progress-text"><span>${completed?'달성 완료':'진행 중'}</span><span>${current}/${a.target}</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderWrongBook() {
+    const list=[];
+    for(let a=2;a<=9;a++) for(let b=1;b<=9;b++) {
+      const s=factStats(a,b);
+      if(s.wrong>0) list.push({a,b,...s,acc:accuracy(s.correct,s.attempts)});
+    }
+    list.sort((x,y)=>y.wrong-x.wrong || x.acc-y.acc);
+    const el=document.getElementById('wrongBookContent');
+    if(!list.length) { el.innerHTML='<div class="card empty"><div style="font-size:60px">🌟</div><h3>아직 오답이 없습니다.</h3><p>정말 훌륭합니다!</p></div>'; return; }
+    el.innerHTML=`<div class="table-wrap"><table><thead><tr><th>문제</th><th>정답</th><th>풀이</th><th>정답</th><th>오답</th><th>정확도</th></tr></thead><tbody>
+      ${list.map(x=>`<tr><td><b>${x.a} × ${x.b}</b></td><td>${x.a*x.b}</td><td>${x.attempts}</td><td class="success">${x.correct}</td><td class="danger">${x.wrong}</td><td>${x.acc}%</td></tr>`).join('')}
+    </tbody></table></div>`;
+  }
+
+  function renderStats() {
+    const acc=accuracy(data.totalCorrect,data.totalAnswered);
+    const mastered=[2,3,4,5,6,7,8,9].filter(n=>isDanMastered(data,n)).length;
+    const food=Object.values(data.food).reduce((a,b)=>a+b,0);
+    const cards=[['🧮',data.totalAnswered.toLocaleString(),'총 풀이'],['✅',`${acc}%`,'누적 정확도'],['⏳',fmtTime(data.playSeconds),'총 학습 시간'],['📚',`${mastered}/8`,'마스터한 단'],['🐾',data.unlockedPets.length,'획득한 펫'],['🍎',food,'보유 먹이'],['👾',Object.keys(data.bossesDefeated).length,'격파한 보스'],['🏆',Object.keys(data.achievements).length,'달성 업적']];
+    document.getElementById('statsCards').innerHTML=cards.map(x=>`<div class="card stat-card"><div class="stat-icon">${x[0]}</div><div><div class="stat-value">${x[1]}</div><div class="stat-label">${x[2]}</div></div></div>`).join('');
+    document.getElementById('danAccuracyBars').innerHTML=[2,3,4,5,6,7,8,9].map(n=>{
+      let at=0,co=0; for(let b=1;b<=9;b++){const s=factStats(n,b);at+=s.attempts;co+=s.correct;}
+      const p=accuracy(co,at);
+      return `<div class="bar-row"><b>${n}단</b><div class="bar-track"><div class="bar-fill" style="width:${p}%"></div></div><span>${p}%</span></div>`;
+    }).join('');
+    const recent=document.getElementById('recentSessions');
+    if(!data.sessions.length) recent.innerHTML='<div class="empty">완료한 게임 기록이 없습니다.</div>';
+    else recent.innerHTML=data.sessions.slice(0,8).map(s=>`<div class="setting-row"><div><b>${s.title}</b><div class="muted">${new Date(s.date).toLocaleString('ko-KR')}</div></div><div style="text-align:right"><b>${s.correct}정답 · ${s.accuracy}%</b><div class="muted">${fmtTime(s.seconds)}</div></div></div>`).join('');
+  }
+
+  function syncSettings() {
+    document.getElementById('soundToggle').checked=data.settings.sound;
+    document.getElementById('effectsToggle').checked=data.settings.effects;
+  }
+
+  document.getElementById('soundToggle').addEventListener('change',e=>{data.settings.sound=e.target.checked;saveDataLight();});
+  document.getElementById('effectsToggle').addEventListener('change',e=>{data.settings.effects=e.target.checked;saveDataLight();});
+
+  function refreshAll() {
+    evaluateAchievementsNoNotify();
+    renderTop(); renderHome();
+    const active=document.querySelector('.screen.active')?.id;
+    if(active==='screen-adventure')renderMap();
+    if(active==='screen-pets')renderPets();
+    if(active==='screen-achievements')renderAchievements();
+    if(active==='screen-wrongbook')renderWrongBook();
+    if(active==='screen-stats')renderStats();
+  }
+
+  function evaluateAchievementsNoNotify() {
+    ACHIEVEMENTS.forEach(a=>{
+      if (a.progress(data)>=a.target && !data.achievements[a.id]) {
+        data.achievements[a.id]={date:new Date().toISOString()};
+        if(a.reward&&!data.unlockedPets.includes(a.reward))data.unlockedPets.push(a.reward);
+      }
+    });
+    storageSet(JSON.stringify(data));
+  }
+
+  function saveDataLight() { storageSet(JSON.stringify(data)); renderTop(); }
+
+  function toast(title,message) {
+    const wrap=document.getElementById('toastWrap');
+    const div=document.createElement('div');
+    div.className='toast'; div.innerHTML=`<b>${title}</b><span>${message}</span>`;
+    wrap.appendChild(div); setTimeout(()=>div.remove(),3200);
+  }
+
+  function showModal(html) { document.getElementById('modalContent').innerHTML=html; document.getElementById('modalBackdrop').classList.add('show'); }
+  function closeModal() { document.getElementById('modalBackdrop').classList.remove('show'); }
+  window.closeModal=closeModal;
+  document.getElementById('modalBackdrop').addEventListener('click',e=>{if(e.target.id==='modalBackdrop' && (!game || game.ended)) closeModal();});
+
+  function playSound(type) {
+    if(!data.settings.sound) return;
+    try {
+      const Ctx=window.AudioContext||window.webkitAudioContext;
+      const ctx=new Ctx();
+      const o=ctx.createOscillator(); const g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      const map={ok:[660,'sine',.12],bad:[180,'sawtooth',.15],reward:[880,'triangle',.25]};
+      const [freq,wave,dur]=map[type]||map.ok;
+      o.frequency.value=freq; o.type=wave;
+      g.gain.setValueAtTime(.09,ctx.currentTime); g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+dur);
+      o.start(); o.stop(ctx.currentTime+dur);
+    } catch(e) {}
+  }
+
+  function confettiBurst() {
+    const colors=['#fbbf24','#22d3ee','#4ade80','#fb7185','#c084fc','#fff'];
+    for(let i=0;i<24;i++) {
+      const c=document.createElement('div'); c.className='confetti';
+      c.style.left='50vw'; c.style.top='45vh'; c.style.background=colors[Math.floor(Math.random()*colors.length)];
+      c.style.setProperty('--dx',`${(Math.random()-.5)*420}px`); c.style.setProperty('--dy',`${80+Math.random()*320}px`);
+      c.style.transform=`rotate(${Math.random()*180}deg)`;
+      document.body.appendChild(c); setTimeout(()=>c.remove(),1050);
+    }
+  }
+
+  function exportData() {
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`구구단퀘스트_백업_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
+  }
+  window.exportData=exportData;
+
+  document.getElementById('importFile').addEventListener('change',e=>{
+    const file=e.target.files[0]; if(!file)return;
+    const reader=new FileReader();
+    reader.onload=()=>{try{const obj=JSON.parse(reader.result);storageSet(JSON.stringify(obj));data=loadData();refreshAll();toast('불러오기 완료','백업 데이터를 복원했습니다.');}catch(err){toast('오류','올바른 백업 파일이 아닙니다.');}};
+    reader.readAsText(file); e.target.value='';
+  });
+
+  function resetAllData() {
+    showModal(`<div class="big-emoji">⚠️</div><h3>모든 기록을 초기화할까요?</h3><p>오답, 업적, 펫, 통계, 모험 진행도가 모두 삭제됩니다. 되돌릴 수 없습니다.</p><div class="option-row" style="justify-content:center"><button class="btn red" onclick="doReset()">완전히 삭제</button><button class="btn dark" onclick="closeModal()">취소</button></div>`);
+  }
+  window.resetAllData=resetAllData;
+  function doReset(){storageRemove();data=defaultData();saveData();closeModal();showScreen('home');toast('초기화 완료','새로운 모험을 시작합니다.');}
+  window.doReset=doReset;
+
+  function toggleFullscreen() {
+    if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  }
+  window.toggleFullscreen=toggleFullscreen;
+
+  window.addEventListener('beforeunload',()=>{ if(game&&!game.ended){ data.playSeconds+=Math.round((Date.now()-game.startedAt)/1000); saveDataLight(); } });
+
+  // 노출 함수
+  Object.assign(window,{startAdventure,startHiddenBoss,startWrongReview,quickStart,openSetup,startConfiguredGame});
+
+  renderDanGrid();
+  refreshAll();
+  globalPlayTimer=setInterval(()=>{ if(game&&!game.ended) renderHud(); },1000);
+})();
+</script>
+</body>
+</html>

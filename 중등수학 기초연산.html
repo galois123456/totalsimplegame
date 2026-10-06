@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>중등 수학 마스터 퀴즈</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- MathJax 렌더링 설정 및 CDN 추가 -->
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
+            startup: { typeset: false } // 동적 렌더링을 위해 초기 자동 렌더링을 끕니다.
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #0f172a; /* slate-900 */
+            color: #f8fafc; /* slate-50 */
+            overflow-x: hidden;
+        }
+
+        /* 수식 렌더링을 위한 커스텀 스타일 */
+        .math-text {
+            font-family: 'Georgia', serif;
+            letter-spacing: 1px;
+        }
+
+        .radical {
+            display: inline-block;
+            border-top: 2px solid currentColor;
+            padding-top: 1px;
+            padding-left: 2px;
+            padding-right: 2px;
+            margin-left: 1px;
+        }
+
+        /* 튀어오르는 애니메이션 */
+        @keyframes pop {
+            0% { transform: scale(0.95); opacity: 0; }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: pop 0.3s ease-out forwards;
+        }
+
+        /* 흔들림 애니메이션 (오답) */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* 정답 시 효과 */
+        .correct-btn {
+            background-color: #10b981 !important; /* emerald-500 */
+            border-color: #059669 !important; /* emerald-600 */
+            color: white !important;
+        }
+
+        /* 오답 시 효과 */
+        .wrong-btn {
+            background-color: #ef4444 !important; /* red-500 */
+            border-color: #dc2626 !important; /* red-600 */
+            color: white !important;
+        }
+
+        /* 커스텀 라디오버튼 (카테고리용) */
+        input[type="radio"] { display: none; }
+        input[type="radio"]:checked + label {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            border-color: #2563eb;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center min-h-screen p-4 sm:p-6">
+
+    <header class="w-full max-w-2xl text-center mb-8 mt-4">
+        <h1 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 mb-2 drop-shadow-md">
+            중등 수학 마스터 🧮
+        </h1>
+        <p class="text-slate-400 text-sm sm:text-base">두뇌 회전을 위한 5가지 대수학 챌린지</p>
+        
+        <div class="flex justify-center gap-6 mt-6 bg-slate-800/50 py-3 rounded-2xl border border-slate-700 shadow-inner">
+            <div class="text-center">
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">SCORE</p>
+                <p class="text-3xl font-bold text-teal-400" id="score">0</p>
+            </div>
+            <div class="w-px bg-slate-700"></div>
+            <div class="text-center">
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">STREAK🔥</p>
+                <p class="text-3xl font-bold text-orange-400" id="streak">0</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full max-w-2xl">
+        <div class="mb-8">
+            <h2 class="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                도전 카테고리
+            </h2>
+            <div class="flex flex-wrap gap-2" id="category-container">
+                <div>
+                    <input type="radio" id="cat-mix" name="category" value="mix" checked>
+                    <label for="cat-mix" class="cursor-pointer inline-block px-4 py-2 rounded-xl border border-slate-600 bg-slate-800 text-slate-300 text-sm font-medium transition-colors hover:bg-slate-700">🎲 랜덤 믹스</label>
+                </div>
+                <div>
+                    <input type="radio" id="cat-int" name="category" value="integer">
+                    <label for="cat-int" class="cursor-pointer inline-block px-4 py-2 rounded-xl border border-slate-600 bg-slate-800 text-slate-300 text-sm font-medium transition-colors hover:bg-slate-700">± 정수/유리수</label>
+                </div>
+                <div>
+                    <input type="radio" id="cat-eq" name="category" value="equation">
+                    <label for="cat-eq" class="cursor-pointer inline-block px-4 py-2 rounded-xl border border-slate-600 bg-slate-800 text-slate-300 text-sm font-medium transition-colors hover:bg-slate-700">𝑥 일차/이차방정식</label>
+                </div>
+                <div>
+                    <input type="radio" id="cat-exp" name="category" value="exponent">
+                    <label for="cat-exp" class="cursor-pointer inline-block px-4 py-2 rounded-xl border border-slate-600 bg-slate-800 text-slate-300 text-sm font-medium transition-colors hover:bg-slate-700">a² 지수법칙</label>
+                </div>
+                <div>
+                    <input type="radio" id="cat-poly" name="category" value="polynomial">
+                    <label for="cat-poly" class="cursor-pointer inline-block px-4 py-2 rounded-xl border border-slate-600 bg-slate-800 text-slate-300 text-sm font-medium transition-colors hover:bg-slate-700">() 다항식 전개</label>
+                </div>
+                <div>
+                    <input type="radio" id="cat-root" name="category" value="root">
+                    <label for="cat-root" class="cursor-pointer inline-block px-4 py-2 rounded-xl border border-slate-600 bg-slate-800 text-slate-300 text-sm font-medium transition-colors hover:bg-slate-700">√ 제곱근</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-700 relative overflow-hidden">
+            <!-- 배경 장식 -->
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl"></div>
+
+            <div id="quiz-area" class="relative z-10 animate-pop">
+                <div class="text-center mb-10 min-h-[120px] flex flex-col justify-center">
+                    <p id="question-instruction" class="text-slate-400 text-sm sm:text-base mb-3"></p>
+                    <div id="question-text" class="text-4xl sm:text-5xl font-black text-white math-text tracking-wide drop-shadow-md">
+                        <!-- 문제 수식 영역 -->
+                    </div>
+                </div>
+
+                <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- 버튼들이 동적으로 생성됨 -->
+                </div>
+            </div>
+
+            <!-- 피드백 메시지 영역 -->
+            <div id="feedback" class="absolute inset-0 z-20 flex items-center justify-center bg-slate-900/90 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200">
+                <div class="text-center transform scale-90 transition-transform duration-300" id="feedback-content">
+                    <div id="feedback-icon" class="text-6xl mb-4"></div>
+                    <h3 id="feedback-title" class="text-2xl font-bold mb-2"></h3>
+                    <p id="feedback-desc" class="text-slate-300"></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 상태 변수
+        let score = 0;
+        let streak = 0;
+        let currentCorrectAnswer = "";
+        let isWaiting = false;
+
+        // DOM 요소
+        const elScore = document.getElementById('score');
+        const elStreak = document.getElementById('streak');
+        const elInstruction = document.getElementById('question-instruction');
+        const elQuestion = document.getElementById('question-text');
+        const elOptions = document.getElementById('options-container');
+        const elQuizArea = document.getElementById('quiz-area');
+        const elFeedback = document.getElementById('feedback');
+        const elFeedbackContent = document.getElementById('feedback-content');
+        const elFeedbackIcon = document.getElementById('feedback-icon');
+        const elFeedbackTitle = document.getElementById('feedback-title');
+        const elFeedbackDesc = document.getElementById('feedback-desc');
+        const categoryRadios = document.querySelectorAll('input[name="category"]');
+
+        // 유틸리티 함수
+        const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const nonZeroRandomInt = (min, max) => {
+            let r = 0;
+            while(r === 0) r = randomInt(min, max);
+            return r;
+        };
+        const shuffleArray = (arr) => [...arr].sort(() => Math.random() - 0.5);
+
+        // 1. 정수/유리수 사칙연산 생성기 (LaTeX 적용)
+        function generateIntegerProblem() {
+            const ops = ['+', '-', '\\times', '\\div'];
+            const op = ops[randomInt(0, 3)];
+            let a, b, qStr, ans;
+
+            if (op === '\\div') {
+                b = nonZeroRandomInt(-12, 12);
+                ans = randomInt(-10, 10);
+                a = b * ans;
+                qStr = `${a < 0 ? '('+a+')' : a} \\div ${b < 0 ? '('+b+')' : b}`;
+            } else {
+                a = randomInt(-15, 15);
+                b = randomInt(-15, 15);
+                if (op === '+') ans = a + b;
+                if (op === '-') ans = a - b;
+                if (op === '\\times') ans = a * b;
+                
+                const strA = a < 0 ? `(${a})` : a;
+                const strB = b < 0 ? `(${b})` : b;
+                qStr = `${strA} ${op} ${strB}`;
+            }
+
+            let distractors = new Set([`\\( ${ans} \\)`]);
+            while(distractors.size < 4) {
+                let diff = randomInt(-5, 5);
+                if (diff === 0) continue;
+                distractors.add(`\\( ${ans + diff} \\)`);
+                distractors.add(`\\( ${ans * -1} \\)`); 
+            }
+            
+            return {
+                instruction: "다음 식을 계산하시오.",
+                question: `\\( ${qStr} \\)`,
+                answer: `\\( ${ans} \\)`,
+                options: Array.from(distractors).slice(0, 4)
+            };
+        }
+
+        // 2. 일차/이차방정식 생성기 (LaTeX 및 이차방정식 추가)
+        function generateEquationProblem() {
+            const isQuadratic = Math.random() > 0.5;
+            
+            if (isQuadratic) {
+                // 이차방정식: (x - a)(x - b) = 0
+                const a = nonZeroRandomInt(-5, 5);
+                const b = nonZeroRandomInt(-5, 5);
+                const c1 = -(a + b);
+                const c0 = a * b;
+                
+                let qStr = `x^2`;
+                if (c1 === 1) qStr += ` + x`;
+                else if (c1 === -1) qStr += ` - x`;
+                else if (c1 > 0) qStr += ` + ${c1}x`;
+                else if (c1 < 0) qStr += ` - ${Math.abs(c1)}x`;
+                
+                if (c0 > 0) qStr += ` + ${c0}`;
+                else if (c0 < 0) qStr += ` - ${Math.abs(c0)}`;
+                qStr += ` = 0`;
+
+                const formatAns = (r1, r2) => {
+                    if (r1 === r2) return `x = ${r1} \\text{ (중근)}`;
+                    return `x = ${r1} \\text{ 또는 } x = ${r2}`;
+                };
+
+                const ansStr = `\\( ${formatAns(Math.min(a,b), Math.max(a,b))} \\)`;
+                
+                let distractors = new Set([ansStr]);
+                while(distractors.size < 4) {
+                    const w1 = a + randomInt(-2, 2);
+                    const w2 = b + randomInt(-2, 2);
+                    distractors.add(`\\( ${formatAns(Math.min(w1,w2), Math.max(w1,w2))} \\)`);
+                }
+
+                return {
+                    instruction: "다음 이차방정식의 해를 구하시오.",
+                    question: `\\( ${qStr} \\)`,
+                    answer: ansStr,
+                    options: Array.from(distractors).slice(0, 4)
+                };
+            } else {
+                // 일차방정식
+                const x = randomInt(-9, 9);
+                const a = nonZeroRandomInt(-5, 5);
+                const b = randomInt(-20, 20);
+                const c = a * x + b;
+                
+                const qStr = `${a === 1 ? '' : (a === -1 ? '-' : a)}x ${b > 0 ? '+ '+b : (b < 0 ? '- '+Math.abs(b) : '')} = ${c}`;
+                
+                let distractors = new Set([`\\( x = ${x} \\)`]);
+                while(distractors.size < 4) {
+                    let wrong = randomInt(-15, 15);
+                    distractors.add(`\\( x = ${wrong} \\)`);
+                    distractors.add(`\\( x = ${-x === 0 ? 1 : -x} \\)`); 
+                }
+
+                return {
+                    instruction: "다음 일차방정식의 해를 구하시오.",
+                    question: `\\( ${qStr} \\)`,
+                    answer: `\\( x = ${x} \\)`,
+                    options: Array.from(distractors).slice(0, 4)
+                };
+            }
+        }
+
+        // 3. 지수법칙 생성기 (LaTeX 적용)
+        function generateExponentProblem() {
+            const rules = ['mult', 'power', 'div'];
+            const rule = rules[randomInt(0, 2)];
+            const base = ['a', 'b', 'x', 'y'][randomInt(0, 3)];
+            let m, n, ansExp, qStr;
+
+            if (rule === 'mult') {
+                m = randomInt(2, 6);
+                n = randomInt(2, 6);
+                ansExp = m + n;
+                qStr = `${base}^${m} \\times ${base}^${n}`;
+            } else if (rule === 'power') {
+                m = randomInt(2, 5);
+                n = randomInt(2, 5);
+                ansExp = m * n;
+                qStr = `(${base}^${m})^${n}`;
+            } else { // div
+                n = randomInt(2, 5);
+                ansExp = randomInt(2, 5);
+                m = n + ansExp; // m > n
+                qStr = `${base}^${m} \\div ${base}^${n}`;
+            }
+
+            const ansStr = `\\( ${base}^{${ansExp}} \\)`;
+            let distractors = new Set([ansStr]);
+            while(distractors.size < 4) {
+                distractors.add(`\\( ${base}^{${m*n}} \\)`);
+                distractors.add(`\\( ${base}^{${m+n}} \\)`);
+                distractors.add(`\\( ${base}^{${Math.abs(m-n) || 1}} \\)`);
+                distractors.add(`\\( ${base}^{${ansExp + randomInt(1,3)}} \\)`);
+            }
+
+            return {
+                instruction: "지수법칙을 이용하여 식을 간단히 하시오.",
+                question: `\\( ${qStr} \\)`,
+                answer: ansStr,
+                options: Array.from(distractors).slice(0, 4)
+            };
+        }
+
+        // 4. 다항식 전개 생성기 (LaTeX 적용)
+        function generatePolynomialProblem() {
+            const m = nonZeroRandomInt(-6, 6);
+            const n = nonZeroRandomInt(-6, 6);
+            
+            const strLeft = `(x ${m > 0 ? '+ '+m : '- '+Math.abs(m)})`;
+            const strRight = `(x ${n > 0 ? '+ '+n : '- '+Math.abs(n)})`;
+            const qStr = strLeft + strRight;
+
+            const c1 = m + n;
+            const c0 = m * n;
+            
+            const formatAns = (c1, c0) => {
+                let res = `x^2`;
+                if(c1 === 1) res += ` + x`;
+                else if(c1 === -1) res += ` - x`;
+                else if(c1 > 0) res += ` + ${c1}x`;
+                else if(c1 < 0) res += ` - ${Math.abs(c1)}x`;
+                
+                if(c0 > 0) res += ` + ${c0}`;
+                else if(c0 < 0) res += ` - ${Math.abs(c0)}`;
+                return `\\( ${res} \\)`;
+            };
+
+            const ansStr = formatAns(c1, c0);
+            
+            let distractors = new Set([ansStr]);
+            distractors.add(formatAns(m-n, c0));
+            distractors.add(formatAns(c1, -c0));
+            distractors.add(formatAns(c0, c1));
+            
+            while(distractors.size < 4) {
+                distractors.add(formatAns(c1 + randomInt(-2, 2), c0 + randomInt(-3, 3)));
+            }
+
+            return {
+                instruction: "다음 식을 전개하시오.",
+                question: `\\( ${qStr} \\)`,
+                answer: ansStr,
+                options: Array.from(distractors).slice(0, 4)
+            };
+        }
+
+        // 5. 제곱근 계산 생성기 (LaTeX 적용)
+        function generateRootProblem() {
+            const a = randomInt(2, 6);
+            const b = [2, 3, 5, 7][randomInt(0, 3)];
+            const N = a * a * b;
+
+            const qStr = `\\sqrt{${N}}`;
+            const ansStr = `\\( ${a}\\sqrt{${b}} \\)`;
+
+            let distractors = new Set([ansStr]);
+            distractors.add(`\\( ${b}\\sqrt{${a}} \\)`);
+            distractors.add(`\\( ${a}\\sqrt{${b+1}} \\)`);
+            distractors.add(`\\( ${a+1}\\sqrt{${b}} \\)`);
+            
+            while(distractors.size < 4) {
+                 distractors.add(`\\( ${randomInt(2,6)}\\sqrt{${[2,3,5,7][randomInt(0,3)]}} \\)`);
+            }
+
+            return {
+                instruction: "다음 무리수를 a√b 꼴로 나타내시오.",
+                question: `\\( ${qStr} \\)`,
+                answer: ansStr,
+                options: Array.from(distractors).slice(0, 4)
+            };
+        }
+
+        function loadNewProblem() {
+            isWaiting = false;
+            
+            // UI 초기화
+            elOptions.innerHTML = '';
+            elQuizArea.classList.remove('animate-pop');
+            void elQuizArea.offsetWidth; // trigger reflow
+            elQuizArea.classList.add('animate-pop');
+            elFeedback.style.opacity = '0';
+            elFeedback.style.pointerEvents = 'none';
+            elFeedbackContent.classList.replace('scale-100', 'scale-90');
+
+            // 카테고리 결정
+            const selectedCat = document.querySelector('input[name="category"]:checked').value;
+            let currentCat = selectedCat;
+            if (currentCat === 'mix') {
+                const cats = ['integer', 'equation', 'exponent', 'polynomial', 'root'];
+                currentCat = cats[Math.floor(Math.random() * cats.length)];
+            }
+
+            let probData;
+            switch(currentCat) {
+                case 'integer': probData = generateIntegerProblem(); break;
+                case 'equation': probData = generateEquationProblem(); break;
+                case 'exponent': probData = generateExponentProblem(); break;
+                case 'polynomial': probData = generatePolynomialProblem(); break;
+                case 'root': probData = generateRootProblem(); break;
+            }
+
+            elInstruction.textContent = probData.instruction;
+            elQuestion.innerHTML = probData.question;
+            currentCorrectAnswer = probData.answer;
+
+            const shuffledOptions = shuffleArray(probData.options);
+
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "math-text text-xl sm:text-2xl bg-slate-800 border-2 border-slate-600 hover:bg-slate-700 hover:border-slate-500 text-slate-100 py-4 sm:py-6 px-4 rounded-2xl transition-all duration-200 transform hover:-translate-y-1 shadow-lg active:translate-y-0 flex items-center justify-center";
+                btn.innerHTML = opt;
+                btn.dataset.latex = opt; // 렌더링 이후 정답 비교를 위해 원본 저장
+                btn.onclick = () => checkAnswer(btn, opt, probData.answer);
+                elOptions.appendChild(btn);
+            });
+
+            // MathJax 수식 렌더링 동적 호출
+            if (window.MathJax) {
+                MathJax.typesetPromise([elQuestion, elOptions]).catch((err) => console.log('MathJax 렌더링 에러:', err.message));
+            }
+        }
+
+        function showFeedback(isCorrect) {
+            elFeedback.style.opacity = '1';
+            elFeedback.style.pointerEvents = 'auto';
+            elFeedbackContent.classList.replace('scale-90', 'scale-100');
+
+            if (isCorrect) {
+                elFeedbackIcon.textContent = '🎉';
+                elFeedbackTitle.textContent = '정답입니다!';
+                elFeedbackTitle.className = 'text-3xl font-black text-emerald-400 mb-2';
+                elFeedbackDesc.textContent = '잘하셨어요! 다음 문제로 넘어갑니다.';
+            } else {
+                elFeedbackIcon.textContent = '💡';
+                elFeedbackTitle.textContent = '아쉽네요!';
+                elFeedbackTitle.className = 'text-3xl font-black text-red-400 mb-2';
+                elFeedbackDesc.innerHTML = `정답은 <span class="font-bold text-white math-text mx-1 bg-slate-700 px-3 py-2 rounded inline-block" id="feedback-ans">${currentCorrectAnswer}</span> 입니다.`;
+                
+                // 오답일 경우 피드백의 정답 수식도 렌더링
+                if (window.MathJax) {
+                    MathJax.typesetPromise([document.getElementById('feedback-ans')]);
+                }
+            }
+        }
+
+        function checkAnswer(btn, selectedOption, correctOption) {
+            if (isWaiting) return;
+            isWaiting = true;
+
+            const isCorrect = (selectedOption === correctOption);
+            
+            if (isCorrect) {
+                btn.classList.add('correct-btn');
+                score += 10;
+                streak += 1;
+                elScore.textContent = score;
+                elStreak.textContent = streak;
+                
+                if(streak > 0 && streak % 5 === 0) {
+                    elStreak.classList.add('animate-pop');
+                    setTimeout(() => elStreak.classList.remove('animate-pop'), 300);
+                }
+            } else {
+                btn.classList.add('wrong-btn', 'animate-shake');
+                streak = 0;
+                elStreak.textContent = streak;
+                
+                // 정답 버튼을 dataset.latex을 이용해 정확히 찾아 표시
+                const buttons = elOptions.querySelectorAll('button');
+                buttons.forEach(b => {
+                    if(b.dataset.latex === correctOption) {
+                        b.classList.remove('border-slate-600');
+                        b.classList.add('border-emerald-500', 'text-emerald-400');
+                    }
+                });
+            }
+
+            setTimeout(() => {
+                showFeedback(isCorrect);
+                setTimeout(loadNewProblem, 2000);
+            }, 600);
+        }
+
+        // 이벤트 리스너 및 초기화
+        categoryRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                // 카테고리 변경 시 애니메이션 효과와 함께 새 문제
+                elQuizArea.style.opacity = '0';
+                setTimeout(() => {
+                    elQuizArea.style.opacity = '1';
+                    loadNewProblem();
+                }, 200);
+            });
+        });
+
+        // 첫 문제 로드
+        window.onload = loadNewProblem;
+
+    </script>
+</body>
+</html>
