@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="수학 게임 모음 — 기초연산, RPG, 대전, 방탈출 게임을 골라 시작하세요.">
+  <title>수학 게임 모음</title>
+  <style>
+    :root { --bg:#f3f6fa; --surface:#fff; --text:#182538; --muted:#66748a; --border:#dfe6ef; --accent:#2455d6; --soft:#edf2ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif; line-height:1.6; }
+    a { -webkit-tap-highlight-color:transparent; }
+    .skip { position:absolute; top:-100px; left:20px; padding:10px 16px; background:var(--surface); color:var(--accent); z-index:5; }
+    .skip:focus { top:12px; }
+    .wrap { max-width:1120px; margin:auto; padding:40px 24px 24px; }
+    .brand { display:flex; align-items:center; gap:10px; font-size:14px; font-weight:750; letter-spacing:.03em; }
+    .brand-icon { display:grid; place-items:center; width:32px; height:32px; border-radius:10px; background:var(--accent); color:white; font-size:21px; }
+    header { padding:38px 0 30px; }
+    .eyebrow { margin:0 0 12px; color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.15em; }
+    h1 { margin:0 0 10px; font-size:clamp(32px,5vw,48px); line-height:1.25; letter-spacing:-.05em; }
+    .intro { margin:0; color:var(--muted); font-size:16px; }
+    .section-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
+    .section-head h2 { margin:0; font-size:16px; }
+    .count { color:var(--muted); font-size:13px; }
+    .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+    .game { display:flex; flex-direction:column; min-height:208px; padding:23px; border:1px solid var(--border); border-radius:18px; background:var(--surface); color:var(--text); text-decoration:none; transition:transform .16s,border-color .16s,box-shadow .16s; }
+    .game:hover { transform:translateY(-3px); border-color:var(--accent); box-shadow:0 8px 24px #2455d612; }
+    .game:focus-visible { outline:3px solid var(--accent); outline-offset:4px; }
+    .card-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .number { color:var(--accent); font-size:20px; font-weight:800; font-variant-numeric:tabular-nums; }
+    .category { color:var(--muted); font-size:12px; }
+    .game h2 { margin:18px 0 26px; font-size:19px; line-height:1.5; letter-spacing:-.035em; overflow-wrap:anywhere; }
+    .card-bottom { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:auto; }
+    .tag { padding:3px 10px; border-radius:7px; background:var(--soft); color:var(--accent); font-size:12px; font-weight:650; }
+    .launch { font-size:13px; font-weight:750; }
+    .launch span { margin-left:4px; color:var(--accent); font-size:18px; }
+    footer { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:32px; padding:20px 0 8px; border-top:1px solid var(--border); color:var(--muted); font-size:12px; }
+    @media (max-width:850px) { .grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media (max-width:520px) { .wrap { padding:24px 18px 18px; } header { padding:30px 0 26px; } .grid { grid-template-columns:1fr; gap:12px; } .game { min-height:174px; padding:20px; } .game h2 { margin:12px 0 18px; } }
+    @media (prefers-color-scheme:dark) { :root { --bg:#101722; --surface:#192331; --text:#eef3fc; --muted:#a6b4c9; --border:#303e52; --accent:#92b4ff; --soft:#243754; } .brand-icon { background:#356ae0; } }
+    @media (prefers-reduced-motion:reduce) { .game { transition:none; } .game:hover { transform:none; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#games">게임 목록으로 이동</a>
+  <div class="wrap">
+    <div class="brand"><span class="brand-icon" aria-hidden="true">∑</span> MATH PLAY</div>
+    <header>
+      <p class="eyebrow">LEARN · PLAY · CHALLENGE</p>
+      <h1>수학, 게임으로 시작하다.</h1>
+      <p class="intro">원하는 게임을 선택하세요. 카드를 누르면 바로 이동합니다.</p>
+    </header>
+    <main id="games">
+      <div class="section-head"><h2>수학 게임 모음</h2><span class="count">총 10개 게임</span></div>
+      <div class="grid">
+      <a class="game" href="./%EC%B4%88%EB%93%B1%ED%95%99%EA%B5%90%20%EA%B8%B0%EC%B4%88%EC%97%B0%EC%82%B0.html">
+        <div class="card-top"><span class="number">01</span><span class="category">초등 수학</span></div>
+        <h2>초등학교 기초연산</h2>
+        <div class="card-bottom"><span class="tag">기초</span><span class="launch">게임 시작 <span aria-hidden="true">↗</span></span></div>
+      </a>
+      <a class="game" href="./%EC%A4%91%EB%93%B1%EC%88%98%ED%95%99%20%EA%B8%B0%EC%B4%88%EC%97%B0%EC%82%B0.html">
+        <div class="card-top"><span class="number">02</span><span class="category">중등 수학</span></div>
+        <h2>중등수학 기초연산</h2>
+        <div class="card-bottom"><span class="tag">기초</span><span class="launch">게임 시작 <span aria-hidden="true">↗</span></span></div>
+      </a>
+      <a class="game" href="./gugudan_rpg.html">
+        <div class="card-top"><span class="number">03</span><span class="category">연산 · RPG</span></div>
+        <h2>구구단 RPG</h2>
+        <div class="card-bottom"><span class="tag">RPG</span><span class="launch">게임 시작 <span aria-hidden="true">↗</span></span></div>
+      </a>
+      <a class="game" href="./%EC%82%AC%EC%B9%99%EC%97%B0%EC%82%B0%20%EA%B2%8C%EC%9E%84ver1.01.html">
+        <div class="card-top"><span class="number">04</span><span class="category">연산</span></div>
+        <h2>사칙연산 게임</h2>
+        <div class="card-bottom"><span class="tag">연산</span><span class="launch">게임 시작 <span aria-hidden="true">↗</span></span></div>
+      </a>
+      <a class="game" href="./%EB%B6%84%EC%88%98_%EA%B3%84%EC%82%B0_%ED%83%90%ED%97%98%EB%8C%80_%EC%9D%8C%EC%88%98%EA%B4%84%ED%98%B8%EC%A0%95%EB%A0%AC%EC%88%98%EC%A0%95.html">
+        <div class="card-top"><span class="number">05</span><span class="category">분수 · 연산</span></div>
+        <h2>분수 계산 탐험대</h2>
+        <div class="card-bottom"><span class="tag">연산</span><span class="launch">게임 시작 <span aria-hidden="true">↗</span></span></div>
+      </a>
+      <a class="game" href="./%EC%97%B0%EC%82%B0_%EC%9A%A9%EC%82%AC_%EC%88%AB%EC%9E%90%EC%84%AC%EC%9D%98_%EC%8B%AC%EC%9E%A5ver1.03.html">
+        <div class="card-top"><span class="number">06</span><span class="category">연산 · RPG</span></div>
+        <h2>연산 용사: 숫자섬의 심장</h2>
+        <div class="card-bottom"><span class="tag">RPG</span><span class="launch">게임 시작 <span aria-hidden="true">↗</span></span></div>
+      </a>
+      <a class="game" href="./%EC%A2%85%ED%95%A9%20%EC%97%B0%EC%82%B0%20%ED%80%98%EC%8A%A4%ED%8A%B8%20RPG%20%EA%B2%8C%EC%9E%84ver1.03.html">
+        <div class="card-top"><span class="number">07</span><span class="category">연산 · RPG</span></div>
+        <h2>종합 연산 퀘스트 RPG</h2>
+        <div class="card-bottom"><span class="tag">RPG</span><span class="launch">게임 시작 <span aria-hidden="true">↗</span></span></div>
+      </a>
+      <a class="game" href="./jolaman_math_battle_ver1.11.html">
+        <div class="card-top"><span class="number">08</span><span class="category">수학 · 대전</span></div>
+        <h2>졸라맨 수학 커맨드 대전</h2>
+        <div class="card-bottom"><span class="tag">대전</span><span class="launch">게임 시작 <span aria-hidden="true">↗</span></span></div>
+      </a>
+      <a class="game" href="./sixsecretofschool.html">
+        <div class="card-top"><span class="number">09</span><span class="category">수학 · 방탈출</span></div>
+        <h2>0시의 학교: 여섯 자리 암호</h2>
+        <div class="card-bottom"><span class="tag">방탈출</span><span class="launch">게임 시작 <span aria-hidden="true">↗</span></span></div>
+      </a>
+      <a class="game" href="./%EA%B3%A0%EC%9A%94%ED%95%9C%EB%A7%88%EC%9D%84_%EC%88%98%ED%95%99%ED%8F%AD%ED%83%84%ED%95%B4%EC%B2%B4%EC%9E%A0%EC%9E%85%EA%B2%8C%EC%9E%84_ver1.04.html">
+        <div class="card-top"><span class="number">10</span><span class="category">수학 · 잠입</span></div>
+        <h2>고요한 마을: 수학 폭탄 해체 잠입 게임</h2>
+        <div class="card-bottom"><span class="tag">잠입</span><span class="launch">게임 시작 <span aria-hidden="true">↗</span></span></div>
+      </a>
+      </div>
+    </main>
+    <footer><span>수학 게임 모음 · ver1.00</span><span>made by yoonsungho</span></footer>
+  </div>
+</body>
+</html>
+
